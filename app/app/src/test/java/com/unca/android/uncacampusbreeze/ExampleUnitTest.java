@@ -1,4 +1,4 @@
-package com.bignerdranch.android.uncacampusbreeze;
+package com.unca.android.uncacampusbreeze;
 
 import org.junit.Test;
 

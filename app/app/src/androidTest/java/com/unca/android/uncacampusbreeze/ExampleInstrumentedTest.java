@@ -1,4 +1,4 @@
-package com.bignerdranch.android.uncacampusbreeze;
+package com.unca.android.uncacampusbreeze;
 
 import android.content.Context;
 
@@ -22,6 +22,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
-        assertEquals("com.bignerdranch.android.uncacampusbreeze", appContext.getPackageName());
+        assertEquals("com.unca.android.uncacampusbreeze", appContext.getPackageName());
     }
 }
