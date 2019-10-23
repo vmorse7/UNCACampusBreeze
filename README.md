@@ -2,7 +2,7 @@
 A location-based messaging app for Android.
 
 ### General:
-App is supposed to resemble something like telegram/Nextdoor. The app encompasses a pseudo anonymous messaging board for UNCAers that are NARPS to communicate with each other.
+App is supposed to resemble something like telegram/Nextdoor. The app encompasses a pseudo-anonymous messaging board for people on UNCA's campus to communicate with each other.
 
 ### App Features / Backlog:
 - Anonymous Messages expire after 24 Hrs
