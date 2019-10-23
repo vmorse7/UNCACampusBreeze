@@ -6,7 +6,7 @@ App is supposed to resemble something like telegram/Nextdoor. The app encompasse
 
 ### App Features / Backlog:
 - Anonymous Messages expire after 24 Hrs
-- Replaces naughty words with asterisks
+- Replaces obscene words with asterisks
   - https://github.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words
   - Utilizes a list of bad words to check and see if any of the posts contain any of the words on the list
 - Messages Content:
