@@ -20,8 +20,7 @@ App is supposed to resemble something like telegram/Nextdoor. The app encompasse
     - VOIP chat / Intercom System
 
 ## Iteration 1
-**Marcelo:** GeoFENCING
-https://developer.android.com/training/location/geofencing
+**Marcelo:** User UI Mockup
 
 **Jonas:** Home Page of App (Not the main UI)
 
