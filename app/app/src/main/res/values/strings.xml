@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">UNCACampusBreeze</string>
+    <string name="button_locate">Locate Me</string>
+    <string name="button_message">Messages</string>
 </resources>
