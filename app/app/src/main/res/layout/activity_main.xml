@@ -16,6 +16,7 @@
         android:fontFamily="@font/fresca"
         android:text="@string/button_locate"
         android:textSize="18sp"
+        android:enabled="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
