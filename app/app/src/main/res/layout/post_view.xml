@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar"></include>
+
+    <EditText
+        android:id="@+id/postHeading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar"
+        android:layout_marginLeft="10dp"
+        android:fontFamily="@font/fresca"
+        android:text="@string/post_heading"
+        android:textSize="18sp" />
+
+    <EditText
+        android:id="@+id/postText"
+        android:layout_width="400dp"
+        android:layout_height="68dp"
+        android:layout_below="@+id/postHeading"
+        android:layout_marginLeft="10dp"
+        android:fontFamily="@font/fresca"
+        android:text="@string/post_text" />
+
+    <TextView
+        android:id="@+id/postDate"
+        android:text="@string/post_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_below="@+id/postText"
+        />
+
+</RelativeLayout>
