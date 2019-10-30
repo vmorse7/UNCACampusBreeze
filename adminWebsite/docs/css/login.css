@@ -1,6 +1,7 @@
 body {
     background-image: url(../images/loginBackground.jpg);
     font-family: sans-serif;
+    height: 100%;
 }
 
 /* Login Information */
