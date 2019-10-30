@@ -36,8 +36,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void sendToMessages(View view){
-        //Intent startNewActivity = new Intent(this, nextScreen.class); IMPORTANT: replace nextScreen.class with main class
-        //startActivity(startNewActivity);
+        Intent startNewActivity = new Intent(this, PostPagerActivity.class);
+        startActivity(startNewActivity);
     }
 
     //This creates an Alert if the user does not have GPS function on, and directs them to the settings page which allows the user to enable GPS
