@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content" android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/postHeading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:layout_marginLeft="10dp"
+        android:fontFamily="@font/fresca"
+        android:text="@string/post_heading"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/postText"
+        android:layout_width="400dp"
+        android:layout_height="68dp"
+        android:layout_below="@+id/postHeading"
+        android:layout_marginLeft="10dp"
+        android:fontFamily="@font/fresca"
+        android:text="@string/post_text" />
+
+    <TextView
+        android:id="@+id/postDate"
+        android:text="@string/post_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_below="@+id/postText"
+        />
+</RelativeLayout>
