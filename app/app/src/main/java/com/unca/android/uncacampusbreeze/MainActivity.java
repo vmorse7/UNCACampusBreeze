@@ -28,6 +28,7 @@ import static com.unca.android.uncacampusbreeze.Constants.PERMISSIONS_REQUEST_EN
 
 public class MainActivity extends AppCompatActivity {
 
+
     private boolean mLocationGranted = false;
     private static final String TAG = "MainActivity";
 
