@@ -36,6 +36,7 @@ dependencies {
      */
     implementation 'com.google.firebase:firebase-analytics:17.2.1' // TODO: Once we get Firebase going, we need to consider if we really need this particular sdk
     implementation 'com.google.firebase:firebase-firestore:21.2.1'
+    implementation 'com.google.firebase:firebase-auth:19.1.0'
 }
 
 apply plugin: 'com.google.gms.google-services' // according to google, I needed to add to bottom of file, so keep it at bottom file
