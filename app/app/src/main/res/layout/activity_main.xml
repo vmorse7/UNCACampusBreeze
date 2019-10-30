@@ -13,10 +13,10 @@
         android:layout_marginStart="156dp"
         android:layout_marginTop="87dp"
         android:layout_marginEnd="156dp"
+        android:enabled="true"
         android:fontFamily="@font/fresca"
         android:text="@string/button_locate"
         android:textSize="18sp"
-        android:enabled="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -32,7 +32,23 @@
         android:text="@string/button_message"
         android:textSize="18sp"
         android:onClick="sendToMessages"
+        android:enabled="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/buttonLocate" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="386dp"
+        android:layout_height="268dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/location"
+        android:contentDescription="tempLocation"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.36"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonMessage"
+        app:layout_constraintVertical_bias="0.595" />
 </androidx.constraintlayout.widget.ConstraintLayout>
