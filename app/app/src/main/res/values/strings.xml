@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">UNCACampusBreeze</string>
+    <string name="app_name">CampusBreeze</string>
     <string name="button_locate">Locate Me</string>
     <string name="button_message">Messages</string>
     <string name="hot_post_button">Hot</string>
@@ -7,4 +7,6 @@
     <string name="post_heading">Post Heading</string>
     <string name="post_text">Post Text</string>
     <string name="post_date">Date</string>
+    <string name="insert_heading">Insert Heading</string>
+    <string name="insert_text">Insert Text</string>
 </resources>

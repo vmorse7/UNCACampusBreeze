@@ -8,23 +8,23 @@ public class Post {
     private UUID postID;
     private String postHeading;
     private String postText;
-    private Date date;
+    private Date mDate;
 
-    public Post(){
+    public Post() {
         this(UUID.randomUUID());
     }
 
-    public Post(UUID id){
+    public Post(UUID id) {
         postID = id;
-        date = new Date();
+        mDate = new Date();
     }
 
     public void setPostHeading(String postH){
-        postH = postHeading;
+        postHeading = postH;
     }
 
     public void setPostText(String postT){
-        postT = postText;
+        postText = postT;
     }
 
     public String getPostHeading(){
@@ -35,5 +35,11 @@ public class Post {
         return postText;
     }
 
+    public UUID getId() {
+        return postID;
+    }
 
+    public Date getDate() {
+        return mDate;
+    }
 }

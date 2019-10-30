@@ -10,36 +10,47 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.UUID;
 
 public class PostFragment extends Fragment {
 
-    private RecyclerView postRecyclerView;
+    private static final String ARG_POST_ID = "post_id";
+
     private TextView date;
     private Post post;
-    private EditText heading;
-    private EditText text;
+    private TextView heading;
+    private TextView text;
     private String currentDate = DateFormat.getDateTimeInstance().format(new Date());
+
+    public static PostFragment newInstance(UUID postId){
+        Bundle args = new Bundle();
+        args.putSerializable(ARG_POST_ID, postId);
+
+        PostFragment fragment = new PostFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        post = new Post();
+        UUID postId = (UUID) getArguments().getSerializable(ARG_POST_ID);
+        post = PostLab.get(getActivity()).getPost(postId);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
-        View view = inflater.inflate(R.layout.post_view, container, false);
+        View v = inflater.inflate(R.layout.new_post, container, false);
 
-        date = view.findViewById(R.id.postDate);
-        date.setText(currentDate);
-
-        heading = (EditText) view.findViewById(R.id.postHeading);
-        heading.setText(post.getPostText());
+        heading = (EditText) v.findViewById(R.id.insertHeading);
+        heading.setText(post.getPostHeading());
         heading.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -49,6 +60,7 @@ public class PostFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 post.setPostHeading(charSequence.toString());
+
             }
 
             @Override
@@ -57,7 +69,7 @@ public class PostFragment extends Fragment {
             }
         });
 
-        text = (EditText) view.findViewById(R.id.postText);
+        text = (EditText) v.findViewById(R.id.insertText);
         text.setText(post.getPostText());
         text.addTextChangedListener(new TextWatcher() {
             @Override
@@ -77,8 +89,7 @@ public class PostFragment extends Fragment {
         });
 
 
-
-        return view;
+        return v;
     }
 
 }

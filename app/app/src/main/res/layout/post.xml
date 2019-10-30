@@ -1,23 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_width="wrap_content" android:layout_height="wrap_content">
 
-    <include
-        android:id="@+id/toolbar"
-        layout="@layout/toolbar"></include>
-
-    <EditText
+    <TextView
         android:id="@+id/postHeading"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/toolbar"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
         android:layout_marginLeft="10dp"
         android:fontFamily="@font/fresca"
         android:text="@string/post_heading"
         android:textSize="18sp" />
 
-    <EditText
+    <TextView
         android:id="@+id/postText"
         android:layout_width="400dp"
         android:layout_height="68dp"
@@ -34,5 +30,4 @@
         android:layout_marginLeft="10dp"
         android:layout_below="@+id/postText"
         />
-
 </RelativeLayout>

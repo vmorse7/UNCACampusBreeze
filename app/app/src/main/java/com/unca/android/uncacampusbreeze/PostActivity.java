@@ -1,45 +1,31 @@
 package com.unca.android.uncacampusbreeze;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
-public class PostActivity extends AppCompatActivity {
+import java.util.ArrayList;
+import java.util.UUID;
 
+public class PostActivity extends SingleFragmentActivity {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public static final String EXTRA_POST_ID =
+            "com.unca.android.uncacampusbreeze.crime_id";
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        setContentView(R.layout.activity_post);
-
-        FragmentManager fManager = getSupportFragmentManager();
-        Fragment fragment = fManager.findFragmentById(R.id.fragment_container);
-
-        if (fragment == null) {
-            fragment = new PostFragment();
-            fManager.beginTransaction()
-                    .add(R.id.fragment_container, fragment)
-                    .commit();
-        }
+    public static Intent newIntent(Context packageContext, UUID postID){
+        Intent intent = new Intent(packageContext, PostActivity.class);
+        intent.putExtra(EXTRA_POST_ID, postID);
+        return intent;
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu){
-        MenuInflater mInflater = getMenuInflater();
-        mInflater.inflate(R.menu.toolbar_menu, menu);
-        return true;
+    protected Fragment createFragment(){
+        UUID postId = (UUID) getIntent()
+                .getSerializableExtra(EXTRA_POST_ID);
+        return PostFragment.newInstance(postId);
     }
-
-
 }
