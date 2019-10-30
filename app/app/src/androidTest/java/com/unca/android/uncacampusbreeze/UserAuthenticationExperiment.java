@@ -1,14 +1,6 @@
 package com.unca.android.uncacampusbreeze;
 
-import android.util.Log;
 
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 
 import org.junit.Test;
@@ -16,6 +8,9 @@ import org.junit.Test;
 public class UserAuthenticationExperiment {
 
     static final private String DEBUG_TAG = "UserAuthEx";
+
+    static final FirebaseAuth mAuth = FirebaseAuth.getInstance();
+
 
     @Test
     public void signInAnon() {
@@ -31,6 +26,7 @@ public class UserAuthenticationExperiment {
                         // Sign in success, update UI with the signed-in user's information
                         Log.d(DEBUG_TAG, "signInAnonymously:success");
                         FirebaseUser user = mAuth.getCurrentUser();
+                        Log.d(DEBUG_TAG,user.getUid());
                     } else {
                         // If sign in fails, display a message to the user.
                         Log.d(DEBUG_TAG, "signInAnonymously:failure", task.getException());
