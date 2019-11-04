@@ -21,16 +21,23 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import static com.unca.android.uncacampusbreeze.Constants.ERROR_DIALOG_REQUEST;
+import static com.unca.android.uncacampusbreeze.Constants.MAPVIEW_BUNDLE_KEY;
 import static com.unca.android.uncacampusbreeze.Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
 import static com.unca.android.uncacampusbreeze.Constants.PERMISSIONS_REQUEST_ENABLE_GPS;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {//Adding implements OnMapReady CallBack
 
 
     private boolean mLocationGranted = false;
     private static final String TAG = "MainActivity";
+    private MapView mMapView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,29 +46,24 @@ public class MainActivity extends AppCompatActivity {
 
         getLocationPermission();
 
-    }
+        //On create portion for MapView according to google's sample code:
+        // *** IMPORTANT ***
+        // MapView requires that the Bundle you pass contain _ONLY_ MapView SDK
+        // objects or sub-Bundles.
+        Bundle mapViewBundle = null;
+        if (savedInstanceState != null) {
+            mapViewBundle = savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY);
+        }
+        mMapView = (MapView) findViewById(R.id.mapView);
+        mMapView.onCreate(mapViewBundle);
 
-    //Sets button and picutre back to invisible so the user has to grant location access again when the app reopens
-    @Override
-    public void onResume(){
-        super.onResume();
-        Button button1 = findViewById(R.id.buttonLocate);
-
-        ImageView img = findViewById(R.id.imageView);
-        Button btn = findViewById(R.id.buttonMessage);
-        img.setVisibility(View.INVISIBLE);
-        btn.setEnabled(false);
+        mMapView.getMapAsync(this);
 
 
-        button1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getLocationPermission();
-                checkLocation();
-            }
-        });
 
     }
+
+    //Sets button and picture back to invisible so the user has to grant location access again when the app reopens
 
 
 
@@ -217,14 +219,83 @@ public class MainActivity extends AppCompatActivity {
 //This method enables button the messages button and sets the image (to be the google map in the near future) to visible
     public void enableButton(){
         Button btn = findViewById(R.id.buttonMessage);
-        ImageView img = findViewById(R.id.imageView);
+        MapView img = findViewById(R.id.mapView);
         btn.setEnabled(true);
         img.setVisibility(View.VISIBLE);
 
     }
 
+    //This is where we implement the google mapView
 
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
 
+        Bundle mapViewBundle = outState.getBundle(MAPVIEW_BUNDLE_KEY);
+        if (mapViewBundle == null) {
+            mapViewBundle = new Bundle();
+            outState.putBundle(MAPVIEW_BUNDLE_KEY, mapViewBundle);
+        }
+
+        mMapView.onSaveInstanceState(mapViewBundle);
+    }
+    //Sets button and picture back to invisible so the user has to grant location access again when the app reopens
+    @Override
+    public void onResume() {
+        super.onResume();
+        Button button1 = findViewById(R.id.buttonLocate);
+
+        MapView img = findViewById(R.id.mapView);
+        Button btn = findViewById(R.id.buttonMessage);
+        img.setVisibility(View.INVISIBLE);
+        btn.setEnabled(false);
+
+
+        button1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getLocationPermission();
+                checkLocation();
+            }
+        });
+        mMapView.onResume();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mMapView.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mMapView.onStop();
+    }
+
+    @Override
+    public void onMapReady(GoogleMap map) {
+        map.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+    }
+
+    @Override
+    public void onPause() {
+        mMapView.onPause();
+        super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        mMapView.onDestroy();
+        super.onDestroy();
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mMapView.onLowMemory();
+    }
 
 }
+
