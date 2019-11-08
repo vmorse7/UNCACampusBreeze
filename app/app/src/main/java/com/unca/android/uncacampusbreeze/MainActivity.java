@@ -46,24 +46,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         getLocationPermission();
 
-        //On create portion for MapView according to google's sample code:
-        // *** IMPORTANT ***
-        // MapView requires that the Bundle you pass contain _ONLY_ MapView SDK
-        // objects or sub-Bundles.
-        Bundle mapViewBundle = null;
-        if (savedInstanceState != null) {
-            mapViewBundle = savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY);
-        }
-        mMapView = (MapView) findViewById(R.id.mapView);
-        mMapView.onCreate(mapViewBundle);
-
-        mMapView.getMapAsync(this);
+        startGoogleMap(savedInstanceState);
 
 
 
     }
 
     //Sets button and picture back to invisible so the user has to grant location access again when the app reopens
+    //7:22
 
 
 
@@ -262,6 +252,29 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMapView.onResume();
     }
 
+
+    //mapView stuff
+
+
+    private void startGoogleMap(Bundle savedInstanceState){
+
+        //On create portion for MapView according to google's sample code:
+        // *** IMPORTANT ***
+        // MapView requires that the Bundle you pass contain _ONLY_ MapView SDK
+        // objects or sub-Bundles.
+        Bundle mapViewBundle = null;
+        if (savedInstanceState != null) {
+            mapViewBundle = savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY);
+        }
+        mMapView = (MapView) findViewById(R.id.mapView);
+        mMapView.onCreate(mapViewBundle);
+
+        mMapView.getMapAsync(this);
+
+    }
+
+
+
     @Override
     public void onStart() {
         super.onStart();
@@ -277,6 +290,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap map) {
         map.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+        if(mLocationGranted)
+        map.setMyLocationEnabled(true);
     }
 
     @Override
