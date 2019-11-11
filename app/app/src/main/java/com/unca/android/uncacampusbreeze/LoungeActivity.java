@@ -51,7 +51,11 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // ========================================================================
+
+        // ========================================================================
         //Get server tokens: JOHN
+
 
         getLocationPermission();
 
