@@ -6,11 +6,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,11 +23,16 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.GeoPoint;
 
 import static com.unca.android.uncacampusbreeze.Constants.ERROR_DIALOG_REQUEST;
 import static com.unca.android.uncacampusbreeze.Constants.MAPVIEW_BUNDLE_KEY;
@@ -38,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private boolean mLocationGranted = false;
     private static final String TAG = "MainActivity";
     private MapView mMapView;
+    private FusedLocationProviderClient mFusedLocation;//Used to find coordinates
+    //private UserLocation mUserLocation; FOR FIREBASE: Create UserLoaction class (see tutorial 7)
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,11 +55,38 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         getLocationPermission();
 
-        startGoogleMap(savedInstanceState);
+        mFusedLocation = LocationServices.getFusedLocationProviderClient(this);
 
+        startGoogleMap(savedInstanceState);
+        getLastKnownLocation();
 
 
     }
+
+    //CREATE saveUserLoaction() public void See tutorial 7
+
+
+    //Find last known location of user
+    private void getLastKnownLocation(){
+        if(mLocationGranted){
+            Log.d(TAG, "LAST KNOWN LOCATION IS CALLED");
+            mFusedLocation.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+                @Override
+                public void onComplete(@NonNull Task<Location> task) {
+                    if(task.isSuccessful()){
+                        Location location = task.getResult();
+                        GeoPoint geoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());
+                        Log.d(TAG, "latitude: " + geoPoint.getLatitude());
+                        Log.d(TAG, "longitude: " + geoPoint.getLongitude());
+
+                        //run saveduserLoaction once method is created
+                    }
+                }
+            });
+
+        }
+    }
+
 
     //Sets button and picture back to invisible so the user has to grant location access again when the app reopens
     //7:22
@@ -127,7 +163,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 == PackageManager.PERMISSION_GRANTED) {//Check for ACCESS FINE LOCATION permission
             Log.d(TAG, "location accessed");
             mLocationGranted = true;
+
             checkLocation();
+            //getLastKnownLocation();
         } else {
             ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
@@ -190,6 +228,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             case PERMISSIONS_REQUEST_ENABLE_GPS: {
                 if(mLocationGranted){
                    enableButton();//if mLocationGranted is true enable the button
+                   getLastKnownLocation();//MIGHT BE CAUSING ISSUES
                 }
                 else{
                     getLocationPermission();
@@ -278,6 +317,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onStart() {
         super.onStart();
+
         mMapView.onStart();
     }
 
@@ -289,9 +329,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onMapReady(GoogleMap map) {
+        getLocationPermission();
         map.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
-        if(mLocationGranted)
-        map.setMyLocationEnabled(true);
+        Log.d(TAG, "LOCATION ACCES IS " +String.valueOf(mLocationGranted));
+
+        if(mLocationGranted){
+            map.setMyLocationEnabled(true);
+
+        }
+
+
     }
 
     @Override
