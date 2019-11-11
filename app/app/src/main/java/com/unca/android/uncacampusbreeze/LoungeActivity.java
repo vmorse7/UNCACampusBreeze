@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import android.Manifest;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -18,7 +17,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -39,11 +37,11 @@ import static com.unca.android.uncacampusbreeze.Constants.MAPVIEW_BUNDLE_KEY;
 import static com.unca.android.uncacampusbreeze.Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
 import static com.unca.android.uncacampusbreeze.Constants.PERMISSIONS_REQUEST_ENABLE_GPS;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {//Adding implements OnMapReady CallBack
+public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallback {//Adding implements OnMapReady CallBack
 
 
     private boolean mLocationGranted = false;
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "LoungeActivity";
     private MapView mMapView;
     private FusedLocationProviderClient mFusedLocation;//Used to find coordinates
     //private UserLocation mUserLocation; FOR FIREBASE: Create UserLoaction class (see tutorial 7)
@@ -198,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public boolean isServiceEnabled(){
         Log.d(TAG, "checking google services version!");
 
-        int available = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(MainActivity.this);
+        int available = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(LoungeActivity.this);
 
         if(available == ConnectionResult.SUCCESS){
             //play service is working and user can make map request
@@ -208,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         else if(GoogleApiAvailability.getInstance().isUserResolvableError(available)){
             //an error occured but we can resolve it
             Log.d(TAG, "an error occured but we can fix it");
-            Dialog dialog = GoogleApiAvailability.getInstance().getErrorDialog(MainActivity.this, available, ERROR_DIALOG_REQUEST);
+            Dialog dialog = GoogleApiAvailability.getInstance().getErrorDialog(LoungeActivity.this, available, ERROR_DIALOG_REQUEST);
             dialog.show();
         }else{
             //user can't make map requests becuase of google play services, we did everything we could
