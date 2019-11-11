@@ -49,11 +49,11 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_lounge);
 
         //Get server tokens: JOHN
 
-        getLocationPermission();
+        //getLocationPermission();
 
         mFusedLocation = LocationServices.getFusedLocationProviderClient(this);
 
@@ -102,9 +102,9 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
 
     @Override
     public void onMapReady(GoogleMap map) {
-        getLocationPermission();
+        //getLocationPermission();
         map.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
-        Log.d(TAG, "LOCATION ACCES IS " +String.valueOf(mLocationGranted));
+        Log.d(TAG, "LOCATION ACCESS IS " + mLocationGranted);
 
         if(mLocationGranted){
             map.setMyLocationEnabled(true);
@@ -145,7 +145,7 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
         if (savedInstanceState != null) {
             mapViewBundle = savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY);
         }
-        mMapView = (MapView) findViewById(R.id.mapView);
+        mMapView = findViewById(R.id.mapView);
         mMapView.onCreate(mapViewBundle);
 
         mMapView.getMapAsync(this);
