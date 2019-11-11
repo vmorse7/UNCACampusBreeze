@@ -50,11 +50,12 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.d(TAG, "onCreate() being called.");
 
+        // Get server tokens: JOHN
         // ========================================================================
 
         // ========================================================================
-        //Get server tokens: JOHN
 
 
         getLocationPermission();
@@ -64,7 +65,7 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
         startGoogleMap(savedInstanceState);
         getLastKnownLocation();
 
-
+        Log.d(TAG, "onCreate() has finished.");
     }
 
 
