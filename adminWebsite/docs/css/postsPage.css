@@ -15,6 +15,14 @@ body {
     list-style: none;
 }
 
+#welcome {
+    text-align: center;
+}
+
+#menu {
+    text-align: center;
+}
+
 .postsCont {
     width: 100%;
     height: 250px;
