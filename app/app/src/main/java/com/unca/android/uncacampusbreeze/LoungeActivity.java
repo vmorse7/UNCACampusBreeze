@@ -119,6 +119,7 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
             map.setMyLocationEnabled(true);
         }
         mGoogleMap = map;
+        map.getUiSettings().setAllGesturesEnabled(false);
         setCameraView();
     }
 
@@ -158,6 +159,7 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
 
         mMapView.getMapAsync(this);
 
+
     }
 
     //Sets the camera view
@@ -179,6 +181,7 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
 
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(mMapBoundary,20));
         mGoogleMap.moveCamera(CameraUpdateFactory.zoomTo(17));
+
     }
 
 
