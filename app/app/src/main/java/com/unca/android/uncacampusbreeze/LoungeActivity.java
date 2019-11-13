@@ -23,10 +23,12 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -45,20 +47,24 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
     private MapView mMapView;
     private FusedLocationProviderClient mFusedLocation;//Used to find coordinates
     //private UserLocation mUserLocation; FOR FIREBASE: Create UserLoaction class (see tutorial 7)
+    private GoogleMap mGoogleMap;
+    private LatLngBounds mMapBoundary;
+    private double userLat = 0;
+    private double userLong = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lounge);
+        //mMapView.setVisibility(View.INVISIBLE);
 
         //Get server tokens: JOHN
 
         //getLocationPermission();
 
         mFusedLocation = LocationServices.getFusedLocationProviderClient(this);
-
+        getLocationPermission();
         startGoogleMap(savedInstanceState);
-        getLastKnownLocation();
 
 
     }
@@ -68,11 +74,12 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
     @Override
     public void onResume() {
         super.onResume();
+        mMapView.onResume();
         Button button1 = findViewById(R.id.buttonLocate);
 
-        MapView img = findViewById(R.id.mapView);
+        MapView map = findViewById(R.id.mapView);
         Button btn = findViewById(R.id.buttonMessage);
-        img.setVisibility(View.INVISIBLE);
+        map.setVisibility(View.INVISIBLE);
         btn.setEnabled(false);
 
 
@@ -81,16 +88,18 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
             public void onClick(View view) {
                 getLocationPermission();
                 checkLocation();
+                setCameraView();
+
             }
         });
-        mMapView.onResume();
+
     }
 
 
     @Override
     public void onStart() {
         super.onStart();
-
+        getLastKnownLocation();
         mMapView.onStart();
     }
 
@@ -108,10 +117,9 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
 
         if(mLocationGranted){
             map.setMyLocationEnabled(true);
-
         }
-
-
+        mGoogleMap = map;
+        setCameraView();
     }
 
     @Override
@@ -152,6 +160,27 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
 
     }
 
+    //Sets the camera view
+    private void setCameraView(){
+        getLastKnownLocation();
+        Log.d(TAG, "USER LATITUDE: " + String.valueOf(userLat));
+        Log.d(TAG, "USER LONGITUDE: " + String.valueOf(userLong));
+       // mMapView.setVisibility(View.VISIBLE);
+        double bottomBoundary = userLat - .1;
+        double leftBoundary = userLong - .1;
+        double topBoundary = userLat + .1;
+        double rightBoundary = userLong + .1;
+
+        mMapBoundary = new LatLngBounds(
+                new LatLng(bottomBoundary, leftBoundary),
+                new LatLng(topBoundary, rightBoundary)
+        );
+
+
+        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(mMapBoundary,20));
+        mGoogleMap.moveCamera(CameraUpdateFactory.zoomTo(17));
+    }
+
 
 
 
@@ -173,6 +202,8 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
                         GeoPoint geoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());
                         Log.d(TAG, "latitude: " + geoPoint.getLatitude());
                         Log.d(TAG, "longitude: " + geoPoint.getLongitude());
+                        userLat = location.getLatitude();
+                        userLong = location.getLongitude();
 
                         //run saveduserLoaction once method is created
                     }
@@ -260,7 +291,7 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
             mLocationGranted = true;
 
             checkLocation();
-            //getLastKnownLocation();
+            getLastKnownLocation();
         } else {
             ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
@@ -282,6 +313,7 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     mLocationGranted = true;
+                    getLastKnownLocation();
                 }
             }
         }
@@ -343,9 +375,9 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
 //This method enables button the messages button and sets the image (to be the google map in the near future) to visible
     public void enableButton(){
         Button btn = findViewById(R.id.buttonMessage);
-        MapView img = findViewById(R.id.mapView);
+        MapView map = findViewById(R.id.mapView);
         btn.setEnabled(true);
-        img.setVisibility(View.VISIBLE);
+        map.setVisibility(View.VISIBLE);
 
     }
 
