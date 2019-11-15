@@ -9,13 +9,13 @@ exports.requestNewUid = functions.https.onCall(async (data) => {
 	// create a new doc with a simple placeholder value of active status.
 	let users = db.collection('users');
 	let FieldValue = admin.firestore.FieldValue;
-	return await users.doc().set({
+	return await users.add({
 		active: false, // user is not currently active. We only created the profile.
 		timeOfCreation: FieldValue.serverTimestamp()
 	})
 	.then((docRef) => {
 		console.log("New user document created with ID: ", docRef.id);
-		return 'test-key';
+		return docRef.id;
 	})
 	.catch((error) => {
 		console.error("Error creating a new user document: ", error)
