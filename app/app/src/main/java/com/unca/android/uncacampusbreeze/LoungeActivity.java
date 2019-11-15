@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 
@@ -26,11 +28,14 @@ public class LoungeActivity extends Activity {
 
     private static final String TAG = "LoungeActivity";
 
+    private String mMyUid;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lounge);
         Log.d(TAG, "onCreate() being called.");
+
     }
 
     @Override
@@ -41,10 +46,12 @@ public class LoungeActivity extends Activity {
         Log.d(TAG, "Authorizing app with server...");
         // first we read from a file for a id number
         SharedPreferences credentialsSharedPref = getActivity().getSharedPreferences("com.unca.android.uncacampusbreeze.credentials", Context.MODE_PRIVATE);
-        String myUid = credentialsSharedPref.getString("uid", null);
-        if (myUid == null) { // if the app instance has never recieved an id from  server
+        mMyUid = credentialsSharedPref.getString("uid", null);
+        if (mMyUid == null) { // if the app instance has never recieved an id from  server
             Log.d(TAG, "No uid exists on phone. Requesting new one from server...");
-            final AtomicReference<String> newUidFromServer = new AtomicReference<>();
+
+            setServerAuthProgress(true);
+
             requestNewUid()
                     .addOnCompleteListener(new OnCompleteListener<String>() {
                         @Override
@@ -56,19 +63,20 @@ public class LoungeActivity extends Activity {
                                     FirebaseFunctionsException.Code code = ffe.getCode();
                                     Object details = ffe.getDetails();
                                 }
-
                                 Log.d(TAG, "requestNewUid:onFailure", e);
+                                setServerAuthProgress(false);
                                 return;
+                            } else {
+                                Log.d(TAG, "requestNewUid:onSuccess");
+                                String result = task.getResult();
+                                setServerAuthProgress(false);
+                                mMyUid = result;
+                                saveNewUidToDevice(mMyUid);
                             }
-                            Log.d(TAG, "requestNewUid:onSuccess");
-                            String result = task.getResult();
-                            newUidFromServer.set(result);
                         }
                     });
-            Log.d(TAG, "The returned new uid: " + newUidFromServer);
-
         } else {
-            // authenticate with server
+            
         }
     }
 
@@ -147,6 +155,24 @@ public class LoungeActivity extends Activity {
                         return result;
                     }
                 });
+    }
+
+    private void setServerAuthProgress(boolean isVisible) {
+        ProgressBar centerLoadingWheel = findViewById(R.id.serverAuthLoadingWheel);
+        centerLoadingWheel.setVisibility(View.INVISIBLE); // initialize to user as not loading anything
+
+        if (isVisible) {
+            centerLoadingWheel.setVisibility(View.VISIBLE);
+        } else {
+            centerLoadingWheel.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    private void saveNewUidToDevice(String newUid) {
+        SharedPreferences credentialsSharedPref = getActivity().getSharedPreferences("com.unca.android.uncacampusbreeze.credentials", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = credentialsSharedPref.edit();
+        editor.putString(uid, newUid);
+        editor.apply();
     }
 }
 
