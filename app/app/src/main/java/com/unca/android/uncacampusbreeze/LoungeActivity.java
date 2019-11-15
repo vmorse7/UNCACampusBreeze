@@ -11,6 +11,8 @@ import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.FirebaseFunctionsException;
@@ -39,13 +41,13 @@ public class LoungeActivity extends Activity {
                     .addOnCompleteListener(new OnCompleteListener<String>() {
                         @Override
                         public void onComplete(@NonNull Task<String> task) {
-                            Log.d(TAG, "onComplete() being called.");
                             if (!task.isSuccessful()) {
-                                Log.d(TAG, "requestNewUid():onFailure", task.getException());
+                                Exception e = task.getException();
                                 return;
                             }
+                            String result = task.getResult();
                         }
-                        })
+                    })
                     .getResult();
 
             Log.d(TAG, "The returned new uid: " + newUid);
