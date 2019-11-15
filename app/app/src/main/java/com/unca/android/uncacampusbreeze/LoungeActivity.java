@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -50,6 +51,9 @@ public class LoungeActivity extends Activity {
         if (mMyUid == null) { // if the app instance has never recieved an id from  server
             Log.d(TAG, "No uid exists on phone. Requesting new one from server...");
 
+            Toast toast = Toast.makeText(getActivity(), "Registering device with server. Getting a new uid", Toast.LENGTH_SHORT);
+            toast.show();
+
             setServerAuthProgress(true);
 
             requestNewUid()
@@ -64,6 +68,8 @@ public class LoungeActivity extends Activity {
                                     Object details = ffe.getDetails();
                                 }
                                 Log.d(TAG, "requestNewUid:onFailure", e);
+                                Toast toast = Toast.makeText(getActivity(), "Error with registering device.", Toast.LENGTH_SHORT);
+                                toast.show();
                                 setServerAuthProgress(false);
                                 return;
                             } else {
@@ -71,12 +77,19 @@ public class LoungeActivity extends Activity {
                                 String result = task.getResult();
                                 setServerAuthProgress(false);
                                 mMyUid = result;
+                                Toast toast = Toast.makeText(getActivity(), "Got a new uid.", Toast.LENGTH_SHORT);
+                                toast.show();
                                 saveNewUidToDevice(mMyUid);
                             }
                         }
                     });
         } else {
-            
+            setServerAuthProgress(false);
+//            Context context = getActivity();
+//            CharSequence text = "Hello toast!";
+//            int duration = Toast.LENGTH_SHORT;
+            Toast toast = Toast.makeText(getActivity(), "Device already registered. Hello " + mMyUid, Toast.LENGTH_SHORT);
+            toast.show();
         }
     }
 
@@ -171,7 +184,7 @@ public class LoungeActivity extends Activity {
     private void saveNewUidToDevice(String newUid) {
         SharedPreferences credentialsSharedPref = getActivity().getSharedPreferences("com.unca.android.uncacampusbreeze.credentials", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = credentialsSharedPref.edit();
-        editor.putString(uid, newUid);
+        editor.putString("uid", newUid);
         editor.apply();
     }
 }
