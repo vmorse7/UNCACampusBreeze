@@ -22,11 +22,16 @@ public class LoungeActivity extends Activity {
 
     private static final String TAG = "LoungeActivity";
 
+    private FirebaseFunctions mFunctions; // https://firebase.google.com/docs/reference/android/com/google/firebase/functions/FirebaseFunctions
+    private String mUid;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lounge);
         Log.d(TAG, "onCreate() being called.");
+        mFunctions = FirebaseFunctions.getInstance();
+
 
         Log.d(TAG, "Authorizing app with server...");
 
@@ -37,20 +42,28 @@ public class LoungeActivity extends Activity {
         if (uidFromCredentials == defaultUid) { // if the app instance has never recieved an id from  server
             Log.d(TAG, "No uid exists on phone. Requesting new one from server...");
 
-            String newUid = requestNewUid()
+            requestNewUid()
                     .addOnCompleteListener(new OnCompleteListener<String>() {
                         @Override
                         public void onComplete(@NonNull Task<String> task) {
                             if (!task.isSuccessful()) {
                                 Exception e = task.getException();
+                                if (e instanceof FirebaseFunctionsException) {
+                                    FirebaseFunctionsException ffe = (FirebaseFunctionsException) e;
+                                    FirebaseFunctionsException.Code code = ffe.getCode();
+                                    Object details = ffe.getDetails();
+                                }
+
+                                Log.d(TAG, "requestNewUid:onFailure", e);
                                 return;
                             }
+                            Log.d(TAG, "requestNewUid:onSuccess");
                             String result = task.getResult();
+                            mUid = "ello";
                         }
-                    })
-                    .getResult();
+                    });
 
-            Log.d(TAG, "The returned new uid: " + newUid);
+            Log.d(TAG, "The returned new uid: " + mUid);
         } else {
             // authenticate with server
         }
@@ -125,19 +138,15 @@ public class LoungeActivity extends Activity {
     private Task<String> requestNewUid() { // Return a string(uid) after sucedding blashshshsh
         Log.d(TAG, "requestNewUid() being called.");
 
-        // https://firebase.google.com/docs/reference/android/com/google/firebase/functions/FirebaseFunctions
-        FirebaseFunctions functions;
-        functions = FirebaseFunctions.getInstance();
-
-        return functions
+        return mFunctions
                 .getHttpsCallable("requestNewUid") // returns HttpsCallableReference
                 .call() // no data needs to be sent. returns Task<HttpsCallableResult>
                 .continueWith(new Continuation<HttpsCallableResult, String>() {
                     @Override
                     public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
                         // if there is a failure, then getResult will throw an exception
-                        String newUid = (String) task.getResult().getData();
-                        return newUid;
+                        String result = (String) task.getResult().getData();
+                        return result;
                     }
                 });
     }
