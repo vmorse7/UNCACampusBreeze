@@ -18,30 +18,33 @@ import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.FirebaseFunctionsException;
 import com.google.firebase.functions.HttpsCallableResult;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+
 public class LoungeActivity extends Activity {
 
     private static final String TAG = "LoungeActivity";
-
-    private FirebaseFunctions mFunctions; // https://firebase.google.com/docs/reference/android/com/google/firebase/functions/FirebaseFunctions
-    private String mUid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lounge);
         Log.d(TAG, "onCreate() being called.");
-        mFunctions = FirebaseFunctions.getInstance();
+    }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart() being called.");
 
         Log.d(TAG, "Authorizing app with server...");
-
         // first we read from a file for a id number
         SharedPreferences credentialsSharedPref = getActivity().getSharedPreferences("com.unca.android.uncacampusbreeze.credentials", Context.MODE_PRIVATE);
-        String defaultUid = "NONE";
-        String uidFromCredentials = credentialsSharedPref.getString("uid", defaultUid);
-        if (uidFromCredentials == defaultUid) { // if the app instance has never recieved an id from  server
+        String myUid = credentialsSharedPref.getString("uid", null);
+        if (myUid == null) { // if the app instance has never recieved an id from  server
             Log.d(TAG, "No uid exists on phone. Requesting new one from server...");
-
+            final AtomicReference<String> newUidFromServer = new AtomicReference<>();
             requestNewUid()
                     .addOnCompleteListener(new OnCompleteListener<String>() {
                         @Override
@@ -59,23 +62,14 @@ public class LoungeActivity extends Activity {
                             }
                             Log.d(TAG, "requestNewUid:onSuccess");
                             String result = task.getResult();
-                            mUid = "ello";
+                            newUidFromServer.set(result);
                         }
                     });
+            Log.d(TAG, "The returned new uid: " + newUidFromServer);
 
-            Log.d(TAG, "The returned new uid: " + mUid);
         } else {
             // authenticate with server
         }
-
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        Log.d(TAG, "onStart() being called.");
-
-
     }
 
     @Override
@@ -90,7 +84,6 @@ public class LoungeActivity extends Activity {
     public void onPause() {
         super.onPause();
         Log.d(TAG, "onPause() being called.");
-
 
 
     }
@@ -138,9 +131,14 @@ public class LoungeActivity extends Activity {
     private Task<String> requestNewUid() { // Return a string(uid) after sucedding blashshshsh
         Log.d(TAG, "requestNewUid() being called.");
 
-        return mFunctions
+        FirebaseFunctions functions; // https://firebase.google.com/docs/reference/android/com/google/firebase/functions/FirebaseFunctions
+        functions = FirebaseFunctions.getInstance();
+
+        Map<String, Object> data = new HashMap<>();
+
+        return functions
                 .getHttpsCallable("requestNewUid") // returns HttpsCallableReference
-                .call() // no data needs to be sent. returns Task<HttpsCallableResult>
+                .call(data) // no data needs to be sent. returns Task<HttpsCallableResult>
                 .continueWith(new Continuation<HttpsCallableResult, String>() {
                     @Override
                     public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
