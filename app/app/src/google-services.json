@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "246661060892",
+    "firebase_url": "https://uncacampusbreeze.firebaseio.com",
+    "project_id": "uncacampusbreeze",
+    "storage_bucket": "uncacampusbreeze.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:246661060892:android:4de33a766dc02649fe42d9",
+        "android_client_info": {
+          "package_name": "com.unca.android.uncacampusbreeze"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "246661060892-er0k7b8t1lkh19mi70qdt7f3d0k6u4pi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAE8ErQffGr6nbTtH6qL5VuN5yxEPBqFBs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "246661060892-er0k7b8t1lkh19mi70qdt7f3d0k6u4pi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:246661060892:android:988d57e388fe9dd5fe42d9",
+        "android_client_info": {
+          "package_name": "com.unca.android.uncacampusbreeze.GeoFire"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "246661060892-er0k7b8t1lkh19mi70qdt7f3d0k6u4pi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAE8ErQffGr6nbTtH6qL5VuN5yxEPBqFBs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "246661060892-er0k7b8t1lkh19mi70qdt7f3d0k6u4pi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
