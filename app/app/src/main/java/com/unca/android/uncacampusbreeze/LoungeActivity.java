@@ -20,6 +20,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.FirebaseFunctionsException;
 import com.google.firebase.functions.HttpsCallableResult;
+import com.unca.android.uncacampusbreeze.server.Authorization;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,51 +46,15 @@ public class LoungeActivity extends Activity {
         Log.d(TAG, "onStart() being called.");
 
         Log.d(TAG, "Authorizing app with server...");
-        // first we read from a file for a id number
-        SharedPreferences credentialsSharedPref = getActivity().getSharedPreferences("com.unca.android.uncacampusbreeze.credentials", Context.MODE_PRIVATE);
-        mMyUid = credentialsSharedPref.getString("uid", null);
-        if (mMyUid == null) { // if the app instance has never recieved an id from  server
-            Log.d(TAG, "No uid exists on phone. Requesting new one from server...");
-
-            Toast toast = Toast.makeText(getActivity(), "Registering device with server. Getting a new uid", Toast.LENGTH_SHORT);
+        setServerAuthProgress(true);
+        if (Authorization.signInToServer(this)) {
+            setServerAuthProgress(false);
+            Toast toast = Toast.makeText(getActivity(), "Successful withj signin to server.", Toast.LENGTH_SHORT);
             toast.show();
-
-            setServerAuthProgress(true);
-
-            requestNewUid()
-                    .addOnCompleteListener(new OnCompleteListener<String>() {
-                        @Override
-                        public void onComplete(@NonNull Task<String> task) {
-                            if (!task.isSuccessful()) {
-                                Exception e = task.getException();
-                                if (e instanceof FirebaseFunctionsException) {
-                                    FirebaseFunctionsException ffe = (FirebaseFunctionsException) e;
-                                    FirebaseFunctionsException.Code code = ffe.getCode();
-                                    Object details = ffe.getDetails();
-                                }
-                                Log.d(TAG, "requestNewUid:onFailure", e);
-                                Toast toast = Toast.makeText(getActivity(), "Error with registering device.", Toast.LENGTH_SHORT);
-                                toast.show();
-                                setServerAuthProgress(false);
-                                return;
-                            } else {
-                                Log.d(TAG, "requestNewUid:onSuccess");
-                                String result = task.getResult();
-                                setServerAuthProgress(false);
-                                mMyUid = result;
-                                Toast toast = Toast.makeText(getActivity(), "Got a new uid.", Toast.LENGTH_SHORT);
-                                toast.show();
-                                saveNewUidToDevice(mMyUid);
-                            }
-                        }
-                    });
         } else {
             setServerAuthProgress(false);
-//            Context context = getActivity();
-//            CharSequence text = "Hello toast!";
-//            int duration = Toast.LENGTH_SHORT;
-            Toast toast = Toast.makeText(getActivity(), "Device already registered. Hello " + mMyUid, Toast.LENGTH_SHORT);
-            toast.show();
+//            Toast toast = Toast.makeText(getActivity(), "...UNsuccessful withj signin to server.", Toast.LENGTH_SHORT);
+//            toast.show();
         }
     }
 
@@ -149,11 +114,5 @@ public class LoungeActivity extends Activity {
         }
     }
 
-    private void saveNewUidToDevice(String newUid) {
-        SharedPreferences credentialsSharedPref = getActivity().getSharedPreferences("com.unca.android.uncacampusbreeze.credentials", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = credentialsSharedPref.edit();
-        editor.putString("uid", newUid);
-        editor.apply();
-    }
 }
 

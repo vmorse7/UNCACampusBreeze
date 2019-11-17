@@ -25,9 +25,10 @@ public class Authorization {
 
     final private static String TAG = "Authorization";
 
-    private static Authorization instance = null;
+    private static String uid = null;
+    private static String customToken = null; // TODO: Really don't like these globals.
 
-    public static boolean signInToServer(LoungeActivity activity) {
+    public static boolean signInToServer(final LoungeActivity activity) {
 //        Toast toast = Toast.makeText(activity, "Registering device with server. Getting a new uid", Toast.LENGTH_SHORT);
 //        toast.show();
 
@@ -35,9 +36,9 @@ public class Authorization {
         final String CREDENTIALS_FILE_UID_INDEX = "uid";
 
         SharedPreferences credentialsSharedPref = activity.getSharedPreferences(CREDENTIALS_FILE_NAME, Context.MODE_PRIVATE);
-        final AtomicReference<String> uid = new AtomicReference<>(credentialsSharedPref.getString(CREDENTIALS_FILE_UID_INDEX, null));
+//        AtomicReference<String> uid = new AtomicReference<>(credentialsSharedPref.getString(CREDENTIALS_FILE_UID_INDEX, null));
 
-        if (uid.get() == null) { // device/app instance does not have prior history with server
+        if (uid == null) { // device/app instance does not have prior history with server
             CloudFunctions.createNewAccount()
                     .addOnCompleteListener(new OnCompleteListener<String>() {
                         @Override
@@ -46,21 +47,24 @@ public class Authorization {
                                 return;
                             }
                             String result = task.getResult();
-                            uid.set(result);
+
+                            uid = result;
+
                         }
                     });
         }
 
-        if (uid.get() == null) { // if there is still a problem
+        if (uid == null) { // if there is still a problem
+
             return false;
         }
 
         SharedPreferences.Editor credentialsEditor = credentialsSharedPref.edit();
-        credentialsEditor.putString(CREDENTIALS_FILE_UID_INDEX, uid.get());
+        credentialsEditor.putString(CREDENTIALS_FILE_UID_INDEX, uid);
         credentialsEditor.apply();
 
-        final AtomicReference<String> customToken = new AtomicReference<>();
-        CloudFunctions.getCustomToken(uid.get())
+//        final AtomicReference<String> customToken = new AtomicReference<>();
+        CloudFunctions.getCustomToken(uid)
                 .addOnCompleteListener(new OnCompleteListener<String>() {
                     @Override
                     public void onComplete(@NonNull Task<String> task) {
@@ -68,23 +72,27 @@ public class Authorization {
                             return;
                         }
                         String result = task.getResult();
-                        customToken.set(result);
+                        customToken = result;
                     }
                 });
 
-        if (customToken.get() == null) {
+        if (customToken == null) {
             return false;
         }
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
-        auth.signInWithCustomToken(customToken.get())
+        auth.signInWithCustomToken(customToken)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-//                            if (!task.isSuccessful()) {
-//                                Log.d(TAG, "signInWithCustomToken:failure", task.getException());
-//                            }
-//                            return
+                            if (!task.isSuccessful()) {
+
+
+                                Log.d(TAG, "signInWithCustomToken:failure", task.getException());
+                            }
+                        Toast toast = Toast.makeText(activity.getApplicationContext(), "Yes", Toast.LENGTH_SHORT);
+                        toast.show();
+                            return;
                     }
                 });
 
