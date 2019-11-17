@@ -17,10 +17,11 @@ exports.requestNewUid = functions.https.onCall(async (data) => {
 	})
 	.then((docRef) => {
 		// console.log("New user document created with ID: ", docRef.id);
-		return docRef.id;
+		uid = docRef.id;
+		return uid;
 	})
 	.catch((error) => {
-		console.error("Error creating a new user document: ", error)
+		throw new functions.https.HttpsError('server-error-registering-account', 'Function must be provided with a registered uid.');
 	});
 });
 
@@ -39,7 +40,7 @@ exports.getCustomToken = functions.https.onCall((data) => {
 				};
 			} else { // invalid uid was passed
 				console.error('A user doc with the uid ' + uid + ' dne.');
-				throw new functions.https.HttpsError('invalid-uid', 'Function must be provided with a registered uid.');
+				throw new functions.https.HttpsError('client-error-invalid-uid', 'Function must be provided with a registered uid.');
 			}
 		});
 });
@@ -51,6 +52,6 @@ function createCustomToken(uid) {
 		return customToken;
 	}
 	catch (error) {
-		throw new functions.https.HttpsError('cant-create-custom-token', "Server error creating custom token: " + error);
+		throw new functions.https.HttpsError('server-error-custom-token', "Error creating custom token: " + error);
 	}
 }
