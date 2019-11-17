@@ -6,7 +6,7 @@ admin.initializeApp();
 
 let db = admin.firestore();
 
-exports.requestNewUid = functions.https.onCall(async (data) => {
+exports.createNewAccount = functions.https.onCall(async (data) => {
 	// create a new doc with a simple placeholder value of active status.
 	let users = db.collection('users');
 	let FieldValue = admin.firestore.FieldValue;
