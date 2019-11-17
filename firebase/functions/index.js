@@ -32,7 +32,10 @@ exports.getCustomToken = functions.https.onCall((data) => {
 	return db.collection('users').doc(uid).get()
 		.then((documentSnapshot) => {
 			if (documentSnapshot.exists) { // a registered uid was passed.
-				return createCustomToken(uid);
+				let customToken =  createCustomToken(uid);
+				return {
+					customToken: customToken
+				};
 			} else { // invalid uid was passed
 				console.error('A user doc with the uid ' + uid + ' dne.');
 				throw new functions.https.HttpsError('invalid-uid', 'Function must be provided with a registered uid.');
@@ -44,9 +47,7 @@ function createCustomToken(uid) {
 	try {
 		// let customToken = await admin.auth().createCustomToken(uid);
 		let customToken = admin.auth().createCustomToken(uid);
-		return {
-			token: customToken
-		};
+		return customToken;
 	}
 	catch (error) {
 		throw new functions.https.HttpsError('cant-create-custom-token', "Server error creating custom token: " + error);
