@@ -12,6 +12,5 @@
     <string name="google_map_api_key">AIzaSyDGN95VVHE3bXcKXLOLAa0GoFj5FH-5Rj8</string>
 
     <string name="title_activity_fullscreen">FullscreenActivity</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
+
 </resources>
