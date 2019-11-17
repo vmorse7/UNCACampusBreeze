@@ -34,9 +34,7 @@ exports.getCustomToken = functions.https.onCall(async (data) => {
 	const documentSnapshot = await db.collection('users').doc(uid).get();
 	if (documentSnapshot.exists) { // a registered uid was passed.
 		let customToken = createCustomToken(uid);
-		return {
-			customToken: customToken
-		};
+		return customToken;
 	}
 	else { // invalid uid was passed
 		console.error('A user doc with the uid ' + uid + ' dne.');
