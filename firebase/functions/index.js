@@ -25,24 +25,23 @@ exports.createNewAccount = functions.https.onCall(async (data) => {
 	});
 });
 
-exports.getCustomToken = functions.https.onCall((data) => {
+exports.getCustomToken = functions.https.onCall(async (data) => {
 	const uid = data.uid;
 	console.log('getCustomToken cloud function is now attempting to generate a custom token for uid ' + uid);
 
 	// check if the uid that the device provided even exists...
 	
-	return db.collection('users').doc(uid).get()
-		.then((documentSnapshot) => {
-			if (documentSnapshot.exists) { // a registered uid was passed.
-				let customToken =  createCustomToken(uid);
-				return {
-					customToken: customToken
-				};
-			} else { // invalid uid was passed
-				console.error('A user doc with the uid ' + uid + ' dne.');
-				throw new functions.https.HttpsError('client-error-invalid-uid', 'Function must be provided with a registered uid.');
-			}
-		});
+	const documentSnapshot = await db.collection('users').doc(uid).get();
+	if (documentSnapshot.exists) { // a registered uid was passed.
+		let customToken = createCustomToken(uid);
+		return {
+			customToken: customToken
+		};
+	}
+	else { // invalid uid was passed
+		console.error('A user doc with the uid ' + uid + ' dne.');
+		throw new functions.https.HttpsError('client-error-invalid-uid', 'Function must be provided with a registered uid.');
+	}
 });
 
 function createCustomToken(uid) {
