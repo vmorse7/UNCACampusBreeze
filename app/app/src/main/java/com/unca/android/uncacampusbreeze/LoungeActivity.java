@@ -51,11 +51,13 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
     private LatLngBounds mMapBoundary;
     private double userLat = 0;
     private double userLong = 0;
+    private boolean isLoggedIn = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lounge);
+        isLoggedIn = true;
         //mMapView.setVisibility(View.INVISIBLE);
 
         //Get server tokens: JOHN
@@ -63,9 +65,11 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
         //getLocationPermission();
 
         mFusedLocation = LocationServices.getFusedLocationProviderClient(this);
-        getLocationPermission();
-        startGoogleMap(savedInstanceState);
+        if(isLoggedIn){
+            getLocationPermission();
 
+        }
+        startGoogleMap(savedInstanceState);
 
     }
 
@@ -99,6 +103,7 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
     @Override
     public void onStart() {
         super.onStart();
+        if(isLoggedIn)
         getLastKnownLocation();
         mMapView.onStart();
     }
@@ -112,15 +117,18 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
     @Override
     public void onMapReady(GoogleMap map) {
         //getLocationPermission();
-        map.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+        //map.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
         Log.d(TAG, "LOCATION ACCESS IS " + mLocationGranted);
 
-        if(mLocationGranted){
-            map.setMyLocationEnabled(true);
+        if(isLoggedIn){
+            if(mLocationGranted){
+                map.setMyLocationEnabled(true);
+            }
+            mGoogleMap = map;
+            map.getUiSettings().setAllGesturesEnabled(false);
+            setCameraView();
         }
-        mGoogleMap = map;
-        map.getUiSettings().setAllGesturesEnabled(false);
-        setCameraView();
+
     }
 
     @Override
@@ -164,23 +172,26 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
 
     //Sets the camera view
     private void setCameraView(){
-        getLastKnownLocation();
-        Log.d(TAG, "USER LATITUDE: " + String.valueOf(userLat));
-        Log.d(TAG, "USER LONGITUDE: " + String.valueOf(userLong));
-       // mMapView.setVisibility(View.VISIBLE);
-        double bottomBoundary = userLat - .1;
-        double leftBoundary = userLong - .1;
-        double topBoundary = userLat + .1;
-        double rightBoundary = userLong + .1;
+        if(isLoggedIn){
+            getLastKnownLocation();
+            Log.d(TAG, "USER LATITUDE: " + String.valueOf(userLat));
+            Log.d(TAG, "USER LONGITUDE: " + String.valueOf(userLong));
+            // mMapView.setVisibility(View.VISIBLE);
+            double bottomBoundary = userLat - .1;
+            double leftBoundary = userLong - .1;
+            double topBoundary = userLat + .1;
+            double rightBoundary = userLong + .1;
 
-        mMapBoundary = new LatLngBounds(
-                new LatLng(bottomBoundary, leftBoundary),
-                new LatLng(topBoundary, rightBoundary)
-        );
+            mMapBoundary = new LatLngBounds(
+                    new LatLng(bottomBoundary, leftBoundary),
+                    new LatLng(topBoundary, rightBoundary)
+            );
 
 
-        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(mMapBoundary,20));
-        mGoogleMap.moveCamera(CameraUpdateFactory.zoomTo(17));
+            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(mMapBoundary,20));
+            mGoogleMap.moveCamera(CameraUpdateFactory.zoomTo(17));
+
+        }
 
     }
 
@@ -402,4 +413,3 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
 
 
 }
-

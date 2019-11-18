@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="156dp"
-        android:layout_marginTop="87dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="156dp"
         android:enabled="true"
         android:fontFamily="@font/fresca"
@@ -40,15 +40,13 @@
 
     <com.google.android.gms.maps.MapView
         android:id="@+id/mapView"
-        android:layout_width="386dp"
-        android:layout_height="268dp"
-        android:layout_marginTop="24dp"
+        android:layout_width="405dp"
+        android:layout_height="696dp"
         android:background="@drawable/location"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonMessage"
-        app:layout_constraintVertical_bias="0.85" />
+        app:layout_constraintTop_toTopOf="@+id/buttonLocate"
+        app:layout_constraintVertical_bias="0.631" />
 </androidx.constraintlayout.widget.ConstraintLayout>
