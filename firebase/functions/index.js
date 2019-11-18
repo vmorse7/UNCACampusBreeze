@@ -3,7 +3,6 @@ let functions = require('firebase-functions');
 let admin = require('firebase-admin');
 
 admin.initializeApp();
-
 let db = admin.firestore();
 
 exports.createNewAccount = functions.https.onCall(async (data) => {

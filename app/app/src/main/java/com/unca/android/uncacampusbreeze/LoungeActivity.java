@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -13,11 +14,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.functions.FirebaseFunctions;
+import com.google.firebase.functions.HttpsCallableReference;
 import com.google.firebase.functions.HttpsCallableResult;
 
 import java.util.HashMap;
@@ -95,76 +99,73 @@ public class LoungeActivity extends Activity {
 
     private class SignInTask extends AsyncTask<Void, Void, Boolean> {
 
-        final private String CREDENTIALS_FILE_NAME = "com.unca.android.uncacampusbreeze.credentials";
+        final private String TAG = "SignInTask";
         final private String CREDENTIALS_FILE_UID_KEY = "uid";
+        final private String CREDENTIALS_FILE_NAME = "com.unca.android.uncacampusbreeze.credentials";
 
         private FirebaseFunctions functions = FirebaseFunctions.getInstance();
+        private SharedPreferences credentialsSharedPref;
+        private String uid;
 
         @Override
         protected void onPreExecute() {
+            // set the gui to desired state
             ProgressBar centerLoadingWheel = findViewById(R.id.serverAuthLoadingWheel);
             centerLoadingWheel.setVisibility(View.VISIBLE);
+
+            credentialsSharedPref = getActivity().getSharedPreferences(CREDENTIALS_FILE_NAME, Context.MODE_PRIVATE); // open the file for storing user credentials
+            uid = credentialsSharedPref.getString(CREDENTIALS_FILE_UID_KEY, null); // get the uid stored on device, if dne then set  it to null
         }
 
         @Override
         protected Boolean doInBackground(Void ... params) {
-
-            SharedPreferences credentialsSharedPref = getActivity().getSharedPreferences(CREDENTIALS_FILE_NAME, Context.MODE_PRIVATE); // open the file for storing user credentials
-            String uid = credentialsSharedPref.getString(CREDENTIALS_FILE_UID_KEY, null);
+            Log.d(TAG, "doInBackground() is running.");
 
             if (uid == null) { // device hasn't registered with server before.
-//                Toast toast = Toast.makeText(getActivity(), "", Toast.LENGTH_SHORT);
-//                toast.show();
+                Log.d(TAG, "uid == null");
 
-                Log.d(TAG, "Device has never registered with server before.");
+                createNewAccount()
+                        .addOnSuccessListener(new OnSuccessListener<String>() {
+                            @Override
+                            public void onSuccess(String s) {
+                                uid = s;
+                                SharedPreferences.Editor editor = credentialsSharedPref.edit();
+                                editor.putString(CREDENTIALS_FILE_UID_KEY, uid);
+                                Log.d(TAG, "uid is now " + uid);
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.d(TAG, e.toString());
+                            }
+                        });
 
-                try {
-                    String newUid = Tasks.await(createNewAccount());
-                    Log.d(TAG, "Awaiting for newUid...");
-                    if (newUid == null) { // Something went wrong on server end
-                        Log.d(TAG, "newUid is null");
-                        return false;
-                    } else {
-                        SharedPreferences.Editor editor = credentialsSharedPref.edit();
-                        editor.putString(CREDENTIALS_FILE_UID_KEY, newUid);
-                        uid = newUid;
-                        Log.d(TAG, "The new uid is " + uid);
-                    }
-                } catch (ExecutionException e) {
-                    // TODO: Implement something here.
-                    return false;
-                } catch (InterruptedException e) {
-                    // TODO: Implement something here.
-                    return false;
-                }
-            }
-
-            Log.d(TAG, "My uid is " + uid);
-
-            try {
-                Log.d(TAG, "Getting token with uid.");
-                String token = Tasks.await(getCustomToken(uid));
-
-                if (token == null) {
-                    Log.d(TAG, "Token is null.");
-                    return false;
-                }
-
-                FirebaseAuth auth = FirebaseAuth.getInstance();
-                AuthResult authResult =  Tasks.await(auth.signInWithCustomToken(token));
-
-                if (authResult.getUser() == null) {
-                    Log.d(TAG, "Could not use token to auth with server.");
-                    return false;
-                }
-
-            } catch (ExecutionException e) {
-                // TODO: Implement something here.
-                return false;
-            } catch (InterruptedException e) {
-                // TODO: Implement something here.
-                return false;
-            }
+//
+//            try {
+//                Log.d(TAG, "Getting token with uid.");
+//                String token = Tasks.await(getCustomToken(uid));
+//
+//                if (token == null) {
+//                    Log.d(TAG, "Token is null.");
+//                    return false;
+//                }
+//
+//                FirebaseAuth auth = FirebaseAuth.getInstance();
+//                AuthResult authResult =  Tasks.await(auth.signInWithCustomToken(token));
+//
+//                if (authResult.getUser() == null) {
+//                    Log.d(TAG, "Could not use token to auth with server.");
+//                    return false;
+//                }
+//
+//            } catch (ExecutionException e) {
+//                // TODO: Implement something here.
+//                return false;
+//            } catch (InterruptedException e) {
+//                // TODO: Implement something here.
+//                return false;
+//            }
 
             return true;
         }
@@ -211,6 +212,7 @@ public class LoungeActivity extends Activity {
                         }
                     });
         }
+
     }
 
 }
