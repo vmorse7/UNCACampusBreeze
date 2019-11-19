@@ -97,123 +97,132 @@ public class LoungeActivity extends Activity {
     }
 
 
-    private class SignInTask extends AsyncTask<Void, Void, Boolean> {
+    
 
-        final private String TAG = "SignInTask";
-        final private String CREDENTIALS_FILE_UID_KEY = "uid";
-        final private String CREDENTIALS_FILE_NAME = "com.unca.android.uncacampusbreeze.credentials";
 
-        private FirebaseFunctions functions = FirebaseFunctions.getInstance();
-        private SharedPreferences credentialsSharedPref;
-        private String uid;
 
-        @Override
-        protected void onPreExecute() {
-            // set the gui to desired state
-            ProgressBar centerLoadingWheel = findViewById(R.id.serverAuthLoadingWheel);
-            centerLoadingWheel.setVisibility(View.VISIBLE);
 
-            credentialsSharedPref = getActivity().getSharedPreferences(CREDENTIALS_FILE_NAME, Context.MODE_PRIVATE); // open the file for storing user credentials
-            uid = credentialsSharedPref.getString(CREDENTIALS_FILE_UID_KEY, null); // get the uid stored on device, if dne then set  it to null
-        }
 
-        @Override
-        protected Boolean doInBackground(Void ... params) {
-            Log.d(TAG, "doInBackground() is running.");
 
-            if (uid == null) { // device hasn't registered with server before.
-                Log.d(TAG, "uid == null");
 
-                createNewAccount()
-                        .addOnSuccessListener(new OnSuccessListener<String>() {
-                            @Override
-                            public void onSuccess(String s) {
-                                uid = s;
-                                SharedPreferences.Editor editor = credentialsSharedPref.edit();
-                                editor.putString(CREDENTIALS_FILE_UID_KEY, uid);
-                                Log.d(TAG, "uid is now " + uid);
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.d(TAG, e.toString());
-                            }
-                        });
 
+//    private class SignInTask extends AsyncTask<Void, Void, Boolean> {
 //
-//            try {
-//                Log.d(TAG, "Getting token with uid.");
-//                String token = Tasks.await(getCustomToken(uid));
+//        final private String TAG = "SignInTask";
+//        final private String CREDENTIALS_FILE_UID_KEY = "uid";
+//        final private String CREDENTIALS_FILE_NAME = "com.unca.android.uncacampusbreeze.credentials";
 //
-//                if (token == null) {
-//                    Log.d(TAG, "Token is null.");
-//                    return false;
-//                }
+//        private FirebaseFunctions functions = FirebaseFunctions.getInstance();
+//        private SharedPreferences credentialsSharedPref;
+//        private String uid;
 //
-//                FirebaseAuth auth = FirebaseAuth.getInstance();
-//                AuthResult authResult =  Tasks.await(auth.signInWithCustomToken(token));
+//        @Override
+//        protected void onPreExecute() {
+//            // set the gui to desired state
+//            ProgressBar centerLoadingWheel = findViewById(R.id.serverAuthLoadingWheel);
+//            centerLoadingWheel.setVisibility(View.VISIBLE);
 //
-//                if (authResult.getUser() == null) {
-//                    Log.d(TAG, "Could not use token to auth with server.");
-//                    return false;
-//                }
+//            credentialsSharedPref = getActivity().getSharedPreferences(CREDENTIALS_FILE_NAME, Context.MODE_PRIVATE); // open the file for storing user credentials
+//            uid = credentialsSharedPref.getString(CREDENTIALS_FILE_UID_KEY, null); // get the uid stored on device, if dne then set  it to null
+//        }
 //
-//            } catch (ExecutionException e) {
-//                // TODO: Implement something here.
-//                return false;
-//            } catch (InterruptedException e) {
-//                // TODO: Implement something here.
-//                return false;
+//        @Override
+//        protected Boolean doInBackground(Void ... params) {
+//            Log.d(TAG, "doInBackground() is running.");
+//
+//            if (uid == null) { // device hasn't registered with server before.
+//                Log.d(TAG, "uid == null");
+//
+//                createNewAccount()
+//                        .addOnSuccessListener(new OnSuccessListener<String>() {
+//                            @Override
+//                            public void onSuccess(String s) {
+//                                uid = s;
+//                                SharedPreferences.Editor editor = credentialsSharedPref.edit();
+//                                editor.putString(CREDENTIALS_FILE_UID_KEY, uid);
+//                                Log.d(TAG, "uid is now " + uid);
+//                            }
+//                        })
+//                        .addOnFailureListener(new OnFailureListener() {
+//                            @Override
+//                            public void onFailure(@NonNull Exception e) {
+//                                Log.d(TAG, e.toString());
+//                            }
+//                        });
+//
+////
+////            try {
+////                Log.d(TAG, "Getting token with uid.");
+////                String token = Tasks.await(getCustomToken(uid));
+////
+////                if (token == null) {
+////                    Log.d(TAG, "Token is null.");
+////                    return false;
+////                }
+////
+////                FirebaseAuth auth = FirebaseAuth.getInstance();
+////                AuthResult authResult =  Tasks.await(auth.signInWithCustomToken(token));
+////
+////                if (authResult.getUser() == null) {
+////                    Log.d(TAG, "Could not use token to auth with server.");
+////                    return false;
+////                }
+////
+////            } catch (ExecutionException e) {
+////                // TODO: Implement something here.
+////                return false;
+////            } catch (InterruptedException e) {
+////                // TODO: Implement something here.
+////                return false;
+////            }
+//
+//            return true;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(Boolean result) {
+//            ProgressBar centerLoadingWheel = findViewById(R.id.serverAuthLoadingWheel);
+//            centerLoadingWheel.setVisibility(View.INVISIBLE);
+//
+//            if (result) {
+//                Toast toast = Toast.makeText(getActivity(), "Signed in to server.", Toast.LENGTH_SHORT);
+//                toast.show();
+//            } else {
+//                Toast toast = Toast.makeText(getActivity(), "Could not sign in to server.", Toast.LENGTH_SHORT);
+//                toast.show();
 //            }
-
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean result) {
-            ProgressBar centerLoadingWheel = findViewById(R.id.serverAuthLoadingWheel);
-            centerLoadingWheel.setVisibility(View.INVISIBLE);
-
-            if (result) {
-                Toast toast = Toast.makeText(getActivity(), "Signed in to server.", Toast.LENGTH_SHORT);
-                toast.show();
-            } else {
-                Toast toast = Toast.makeText(getActivity(), "Could not sign in to server.", Toast.LENGTH_SHORT);
-                toast.show();
-            }
-        }
-
-        private Task<String> createNewAccount() {
-            return functions
-                    .getHttpsCallable("createNewAccount")
-                    .call()
-                    .continueWith(new Continuation<HttpsCallableResult, String>() {
-                        @Override
-                        public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
-                            String result = (String) task.getResult().getData();
-                            return result;
-                        }
-                    });
-        }
-
-        private Task<String> getCustomToken(String uid) {
-            Map<String, Object> data = new HashMap<>();
-            data.put("uid", uid);
-
-            return functions
-                    .getHttpsCallable("getCustomToken")
-                    .call(data)
-                    .continueWith(new Continuation<HttpsCallableResult, String>() {
-                        @Override
-                        public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
-                            String result = (String) task.getResult().getData();
-                            return result;
-                        }
-                    });
-        }
-
-    }
+//        }
+//
+//        private Task<String> createNewAccount() {
+//            return functions
+//                    .getHttpsCallable("createNewAccount")
+//                    .call()
+//                    .continueWith(new Continuation<HttpsCallableResult, String>() {
+//                        @Override
+//                        public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+//                            String result = (String) task.getResult().getData();
+//                            return result;
+//                        }
+//                    });
+//        }
+//
+//        private Task<String> getCustomToken(String uid) {
+//            Map<String, Object> data = new HashMap<>();
+//            data.put("uid", uid);
+//
+//            return functions
+//                    .getHttpsCallable("getCustomToken")
+//                    .call(data)
+//                    .continueWith(new Continuation<HttpsCallableResult, String>() {
+//                        @Override
+//                        public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+//                            String result = (String) task.getResult().getData();
+//                            return result;
+//                        }
+//                    });
+//        }
+//
+//    }
 
 }
 
