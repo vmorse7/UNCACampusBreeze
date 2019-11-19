@@ -30,25 +30,33 @@ import java.util.concurrent.ExecutionException;
 
 public class LoungeActivity extends Activity {
 
-    private static final String TAG = "LoungeActivity";
+    final private static String TAG = "LoungeActivity";
+    final private static String CREDENTIALS_FILE_UID_KEY = "uid";
+    final private static String CREDENTIALS_FILE_NAME = "com.unca.android.uncacampusbreeze.credentials";
 
-    private String mMyUid;
+    private String muid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lounge);
         Log.d(TAG, "onCreate() being called.");
-
     }
 
     @Override
     public void onStart() {
         super.onStart();
         Log.d(TAG, "onStart() being called.");
-        new SignInTask().execute();
 
-        Log.d(TAG, "Authorizing app with server...");
+        SharedPreferences credentialsSharedPref = getActivity().getSharedPreferences(CREDENTIALS_FILE_NAME, Context.MODE_PRIVATE);
+        String uid = credentialsSharedPref.getString(CREDENTIALS_FILE_UID_KEY, null);
+
+        if (uid == null) { // assume device has never registered with server before.
+            registerWithThenSignIntoServer();
+        } else {
+            signIntoServerWithUid(uid);
+        }
+
 
     }
 
@@ -96,133 +104,101 @@ public class LoungeActivity extends Activity {
         return LoungeActivity.this;
     }
 
+    private void registerWithThenSignIntoServer() {
+        Toast toast = Toast.makeText(getActivity(), "Registering for the first time with server...", Toast.LENGTH_SHORT);
+        toast.show();
 
-    
+        createNewAccount()
+                .addOnSuccessListener(new OnSuccessListener<String>() {
+                    @Override
+                    public void onSuccess(String s) {
+                        Toast toast = Toast.makeText(getActivity(), "Registration was a success!", Toast.LENGTH_SHORT);
+                        toast.show();
+                        getActivity()
+                                .getSharedPreferences(CREDENTIALS_FILE_NAME, Context.MODE_PRIVATE)
+                                .edit()
+                                .putString(CREDENTIALS_FILE_UID_KEY, s)
+                                .apply();
 
+                        signIntoServerWithUid(s);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast toast = Toast.makeText(getActivity(), "Registration was a failure!", Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+                });
+    }
 
+    private void signIntoServerWithUid(String uid) {
+        Toast toast = Toast.makeText(getActivity(), "Signing into server...", Toast.LENGTH_SHORT);
+        toast.show();
 
+        createCustomTokenForUid(uid)
+                .addOnSuccessListener(new OnSuccessListener<String>() {
+                    @Override
+                    public void onSuccess(String s) {
+                        FirebaseAuth auth = FirebaseAuth.getInstance();
+                        auth.signInWithCustomToken(s)
+                                .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+                                    @Override
+                                    public void onSuccess(AuthResult authResult) {
+                                        Toast toast = Toast.makeText(getActivity(), "Sign in with server successful.", Toast.LENGTH_SHORT);
+                                        toast.show();
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast toast = Toast.makeText(getActivity(), "Sign in with server unsuccessful.", Toast.LENGTH_SHORT);
+                                        toast.show();
+                                    }
+                                });
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d(TAG, e.toString());
+                        Toast toast = Toast.makeText(getActivity(), "Sign in with server unsuccessful.", Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+                });
+    }
 
+    private Task<String> createNewAccount() {
+        FirebaseFunctions functions = FirebaseFunctions.getInstance();
 
+        return functions
+                .getHttpsCallable("createNewAccount")
+                .call()
+                .continueWith(new Continuation<HttpsCallableResult, String>() {
+                    @Override
+                    public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                        String result = (String) task.getResult().getData();
+                        return result;
+                    }
+                });
+    }
 
+    private Task<String> createCustomTokenForUid(String uid) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("uid", uid);
 
+        FirebaseFunctions functions = FirebaseFunctions.getInstance();
 
-//    private class SignInTask extends AsyncTask<Void, Void, Boolean> {
-//
-//        final private String TAG = "SignInTask";
-//        final private String CREDENTIALS_FILE_UID_KEY = "uid";
-//        final private String CREDENTIALS_FILE_NAME = "com.unca.android.uncacampusbreeze.credentials";
-//
-//        private FirebaseFunctions functions = FirebaseFunctions.getInstance();
-//        private SharedPreferences credentialsSharedPref;
-//        private String uid;
-//
-//        @Override
-//        protected void onPreExecute() {
-//            // set the gui to desired state
-//            ProgressBar centerLoadingWheel = findViewById(R.id.serverAuthLoadingWheel);
-//            centerLoadingWheel.setVisibility(View.VISIBLE);
-//
-//            credentialsSharedPref = getActivity().getSharedPreferences(CREDENTIALS_FILE_NAME, Context.MODE_PRIVATE); // open the file for storing user credentials
-//            uid = credentialsSharedPref.getString(CREDENTIALS_FILE_UID_KEY, null); // get the uid stored on device, if dne then set  it to null
-//        }
-//
-//        @Override
-//        protected Boolean doInBackground(Void ... params) {
-//            Log.d(TAG, "doInBackground() is running.");
-//
-//            if (uid == null) { // device hasn't registered with server before.
-//                Log.d(TAG, "uid == null");
-//
-//                createNewAccount()
-//                        .addOnSuccessListener(new OnSuccessListener<String>() {
-//                            @Override
-//                            public void onSuccess(String s) {
-//                                uid = s;
-//                                SharedPreferences.Editor editor = credentialsSharedPref.edit();
-//                                editor.putString(CREDENTIALS_FILE_UID_KEY, uid);
-//                                Log.d(TAG, "uid is now " + uid);
-//                            }
-//                        })
-//                        .addOnFailureListener(new OnFailureListener() {
-//                            @Override
-//                            public void onFailure(@NonNull Exception e) {
-//                                Log.d(TAG, e.toString());
-//                            }
-//                        });
-//
-////
-////            try {
-////                Log.d(TAG, "Getting token with uid.");
-////                String token = Tasks.await(getCustomToken(uid));
-////
-////                if (token == null) {
-////                    Log.d(TAG, "Token is null.");
-////                    return false;
-////                }
-////
-////                FirebaseAuth auth = FirebaseAuth.getInstance();
-////                AuthResult authResult =  Tasks.await(auth.signInWithCustomToken(token));
-////
-////                if (authResult.getUser() == null) {
-////                    Log.d(TAG, "Could not use token to auth with server.");
-////                    return false;
-////                }
-////
-////            } catch (ExecutionException e) {
-////                // TODO: Implement something here.
-////                return false;
-////            } catch (InterruptedException e) {
-////                // TODO: Implement something here.
-////                return false;
-////            }
-//
-//            return true;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(Boolean result) {
-//            ProgressBar centerLoadingWheel = findViewById(R.id.serverAuthLoadingWheel);
-//            centerLoadingWheel.setVisibility(View.INVISIBLE);
-//
-//            if (result) {
-//                Toast toast = Toast.makeText(getActivity(), "Signed in to server.", Toast.LENGTH_SHORT);
-//                toast.show();
-//            } else {
-//                Toast toast = Toast.makeText(getActivity(), "Could not sign in to server.", Toast.LENGTH_SHORT);
-//                toast.show();
-//            }
-//        }
-//
-//        private Task<String> createNewAccount() {
-//            return functions
-//                    .getHttpsCallable("createNewAccount")
-//                    .call()
-//                    .continueWith(new Continuation<HttpsCallableResult, String>() {
-//                        @Override
-//                        public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
-//                            String result = (String) task.getResult().getData();
-//                            return result;
-//                        }
-//                    });
-//        }
-//
-//        private Task<String> getCustomToken(String uid) {
-//            Map<String, Object> data = new HashMap<>();
-//            data.put("uid", uid);
-//
-//            return functions
-//                    .getHttpsCallable("getCustomToken")
-//                    .call(data)
-//                    .continueWith(new Continuation<HttpsCallableResult, String>() {
-//                        @Override
-//                        public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
-//                            String result = (String) task.getResult().getData();
-//                            return result;
-//                        }
-//                    });
-//        }
-//
-//    }
-
+        return functions
+                .getHttpsCallable("createCustomTokenForUid")
+                .call(data)
+                .continueWith(new Continuation<HttpsCallableResult, String>() {
+                    @Override
+                    public String then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                        String result = (String) task.getResult().getData();
+                        return result;
+                    }
+                });
+    }
 }
 

@@ -9,14 +9,4 @@
     tools:context=".LoungeActivity"
     android:id="@+id/frameLayout">
 
-
-    <ProgressBar
-        android:id="@+id/serverAuthLoadingWheel"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Progress Bar"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
-
 </RelativeLayout>
