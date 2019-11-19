@@ -24,7 +24,7 @@ exports.createNewAccount = functions.https.onCall(async (data) => {
 	});
 });
 
-exports.getCustomToken = functions.https.onCall(async (data) => {
+exports.createCustomTokenForUid = functions.https.onCall(async (data) => {
 	const uid = data.uid;
 	console.log('getCustomToken cloud function is now attempting to generate a custom token for uid ' + uid);
 
@@ -33,6 +33,9 @@ exports.getCustomToken = functions.https.onCall(async (data) => {
 	const documentSnapshot = await db.collection('users').doc(uid).get();
 	if (documentSnapshot.exists) { // a registered uid was passed.
 		let customToken = createCustomToken(uid);
+		// return {
+		// 	customToken: customToken
+		// };
 		return customToken;
 	}
 	else { // invalid uid was passed
