@@ -1,17 +1,28 @@
 package com.unca.android.uncacampusbreeze;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -31,6 +42,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableReference;
 import com.google.firebase.functions.HttpsCallableResult;
@@ -39,7 +51,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-public class LoungeActivity extends Activity {
+import static com.unca.android.uncacampusbreeze.Constants.ERROR_DIALOG_REQUEST;
+import static com.unca.android.uncacampusbreeze.Constants.MAPVIEW_BUNDLE_KEY;
+import static com.unca.android.uncacampusbreeze.Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
+import static com.unca.android.uncacampusbreeze.Constants.PERMISSIONS_REQUEST_ENABLE_GPS;
+
+public class LoungeActivity extends Activity implements OnMapReadyCallback {
 
     final private static String TAG = "LoungeActivity";
     final private static String CREDENTIALS_FILE_UID_KEY = "uid";
@@ -47,7 +64,6 @@ public class LoungeActivity extends Activity {
 
     private String muid;
     private boolean mLocationGranted = false;
-    private static final String TAG = "LoungeActivity";
     private MapView mMapView;
     private FusedLocationProviderClient mFusedLocation;//Used to find coordinates
     //private UserLocation mUserLocation; FOR FIREBASE: Create UserLoaction class (see tutorial 7)
@@ -79,9 +95,16 @@ public class LoungeActivity extends Activity {
         startGoogleMap(savedInstanceState);
 
     }
+
+
+    public void checkLocation() {
+        if (checkMapServices()) {
+            if (mLocationGranted) {
+                Log.d(TAG, "Location Access has been granted");
+                enableButton();
+            }
+        }
     }
-
-
 
     //Sets button and picture back to invisible so the user has to grant location access again when the app reopens
     @Override
@@ -147,7 +170,7 @@ public class LoungeActivity extends Activity {
     public void onStop() {
         super.onStop();
         Log.d(TAG, "onStop() being called.");
-}
+    }
 
     private void startGoogleMap(Bundle savedInstanceState){
 
@@ -164,7 +187,7 @@ public class LoungeActivity extends Activity {
     }
 
     //Sets the camera view
-    private void setCameraView(){
+    private void setCameraView() {
         if(isLoggedIn){
             getLastKnownLocation();
             Log.d(TAG, "USER LATITUDE: " + String.valueOf(userLat));
@@ -332,7 +355,7 @@ public class LoungeActivity extends Activity {
 
 
 //Ensure that google services is running and updated
-    public boolean isServiceEnabled(){
+    public boolean isServiceEnabled() {
         Log.d(TAG, "checking google services version!");
 
         int available = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(LoungeActivity.this);
@@ -410,8 +433,9 @@ public class LoungeActivity extends Activity {
         }
         return false;
     }
+
 //This method enables button the messages button and sets the image (to be the google map in the near future) to visible
-    public void enableButton(){
+    public void enableButton() {
         Button btn = findViewById(R.id.buttonMessage);
         MapView map = findViewById(R.id.mapView);
         btn.setEnabled(true);
@@ -436,3 +460,4 @@ public class LoungeActivity extends Activity {
                     }
                 });
     }
+}
