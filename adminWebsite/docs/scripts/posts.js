@@ -39,9 +39,14 @@ Pseudocode:
 
 */
 
-var postStruct = '<div id="postsCont">'+'<div class="titleCont">'+'<div class="postTitle">'+'<p id="title">Title</p>'+'<p id="date">Time/Date</p>'+'</div>'+'</div>'+'<div class="content">'+'<div class="text">'+'<p id="postText"></p>'+'</div>'+'<div class="postActions">'+'<button id="remove">Remove</button>'+'</div>'+'</div>'+'</div>';
+var postStruct = '<div id="postsCont">'+'<div class="titleCont">'+'<div class="postTitle">'+'<p id="title">Title</p>'+'<p id="date">Time/Date</p>'+'</div>'+'</div>'+'<div class="content">'+'<div class="text">'+'<p id="postText"></p>'+'</div>'+'<div class="postActions">'+'<button id="remove" onclick="removePost()">Remove</button>'+'</div>'+'</div>'+'</div>';
 
 document.getElementById("postCont").innerHTML = postStruct;
+
+/*Remove post function */
+function removePost(){
+    document.getElementById("postCont").innerHTML = "";
+}
 
 /*
 function loadPosts(){

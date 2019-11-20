@@ -54,6 +54,6 @@ body {
 
 .postActions {
     border: .5px solid black;
-    width: 10%;
+    width: 100px;
     height: 100%;
 }
