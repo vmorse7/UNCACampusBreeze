@@ -30,4 +30,13 @@
         android:layout_marginLeft="10dp"
         android:layout_below="@+id/postText"
         />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/postDate"
+        android:paddingLeft="2dp"
+        android:text="________________________________________________________"
+        />
+
 </RelativeLayout>

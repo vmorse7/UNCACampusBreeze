@@ -8,11 +8,12 @@
 
     <item
         android:id="@+id/hotPostButton"
-        android:title="Hot Posts" />
+        app:showAsAction="always"
+        android:title="Hot" />
 
     <item
     android:id="@+id/new_post"
-
+    app:showAsAction="always"
     android:title="New Post" />
 
 </menu>

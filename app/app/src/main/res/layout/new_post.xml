@@ -27,4 +27,11 @@
         android:hint="@string/insert_text"
         android:text="@string/insert_text" />
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/insertText"
+        android:text="POST"
+        />
+
 </RelativeLayout>
