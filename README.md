@@ -1,8 +1,10 @@
 # UNCACampusBreeze
 A location-based messaging app for Android.
 
+Developed by John Muse, Jonas Buser, Marcelo Sanchez, and Tristan Morse
+
 ### General:
-App is supposed to resemble something like telegram/Nextdoor. The app encompasses a pseudo-anonymous messaging board for people on UNCA's campus to communicate with each other.
+App is supposed to resemble something like Telegram, Nextdoor, or YikYak. The app encompasses a pseudo-anonymous messaging board for people on UNCA's campus to communicate with each other.
 
 ### App Features / Backlog:
 - Anonymous Messages expire after 24 Hrs
@@ -17,13 +19,3 @@ App is supposed to resemble something like telegram/Nextdoor. The app encompasse
     - Geofencing
     - Anonymous replies to messages
     - Bulletin Board locations  for everybody, news, and other stuff
-    - VOIP chat / Intercom System
-
-## Iteration 1
-**Marcelo:** User UI Mockup
-
-**Jonas:** Home Page of App (Not the main UI)
-
-**Tristan:** Designing the website to be used for administering and moderating the messages
-
-**John:**  DATABASE SERVER STUFF. FIRST ITERATION DATABASE MODEL.
