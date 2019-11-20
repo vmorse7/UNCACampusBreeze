@@ -1,7 +1,7 @@
 # UNCACampusBreeze
 A location-based messaging app for Android.
 
-Developed by John Muse, Jonas Busar, Marcelo Sanchez, and Tristan Morse
+Developed by John Muse, Jonas Buser, Marcelo Sanchez, and Tristan Morse
 
 ### General:
 App is supposed to resemble something like Telegram, Nextdoor, or YikYak. The app encompasses a pseudo-anonymous messaging board for people on UNCA's campus to communicate with each other.
