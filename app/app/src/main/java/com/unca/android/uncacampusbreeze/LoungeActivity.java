@@ -10,22 +10,16 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -36,20 +30,19 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.functions.FirebaseFunctions;
-import com.google.firebase.functions.HttpsCallableReference;
 import com.google.firebase.functions.HttpsCallableResult;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 import static com.unca.android.uncacampusbreeze.Constants.ERROR_DIALOG_REQUEST;
 import static com.unca.android.uncacampusbreeze.Constants.MAPVIEW_BUNDLE_KEY;
@@ -77,10 +70,7 @@ public class LoungeActivity extends Activity implements OnMapReadyCallback {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lounge);
-
-        Log.d(TAG, "onCreate() being called.");
-      
-              isLoggedIn = true;
+        isLoggedIn = true;
         //mMapView.setVisibility(View.INVISIBLE);
 
         //Get server tokens: JOHN
@@ -165,10 +155,18 @@ public class LoungeActivity extends Activity implements OnMapReadyCallback {
 
     }
 
+    public void sendToMessages(View view){
+        Log.d(TAG, "Send To Messages is called");
+        Intent startNewActivity = new Intent(this, PostListActivity.class);
+        startActivity(startNewActivity);
+
+    }
+
 
     @Override
     public void onStop() {
         super.onStop();
+        mMapView.onStop();
         Log.d(TAG, "onStop() being called.");
     }
 
@@ -184,6 +182,8 @@ public class LoungeActivity extends Activity implements OnMapReadyCallback {
         }
         mMapView = findViewById(R.id.mapView);
         mMapView.onCreate(mapViewBundle);
+
+        mMapView.getMapAsync(this);
     }
 
     //Sets the camera view
@@ -208,6 +208,7 @@ public class LoungeActivity extends Activity implements OnMapReadyCallback {
             mGoogleMap.moveCamera(CameraUpdateFactory.zoomTo(17));
 
         }
+
 
     }
 
@@ -460,4 +461,39 @@ public class LoungeActivity extends Activity implements OnMapReadyCallback {
                     }
                 });
     }
+
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG, "onActivityResult: called.");
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_ENABLE_GPS: {
+                if(mLocationGranted){
+                    enableButton();//if mLocationGranted is true enable the button
+                    getLastKnownLocation();//MIGHT BE CAUSING ISSUES
+                }
+                else{
+                    getLocationPermission();
+                }
+            }
+        }
+
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        Bundle mapViewBundle = outState.getBundle(MAPVIEW_BUNDLE_KEY);
+        if (mapViewBundle == null) {
+            mapViewBundle = new Bundle();
+            outState.putBundle(MAPVIEW_BUNDLE_KEY, mapViewBundle);
+        }
+
+        mMapView.onSaveInstanceState(mapViewBundle);
+    }
+
+
 }
