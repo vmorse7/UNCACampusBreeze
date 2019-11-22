@@ -4,15 +4,17 @@
 
     <item
         android:id="@+id/allPostButton"
+        app:showAsAction="always"
         android:title="View All" />
 
     <item
         android:id="@+id/hotPostButton"
+        app:showAsAction="always"
         android:title="Hot Posts" />
 
     <item
     android:id="@+id/new_post"
-
+    app:showAsAction="never"
     android:title="New Post" />
 
 </menu>
