@@ -5,12 +5,20 @@
     <item
         android:id="@+id/allPostButton"
         app:showAsAction="always"
+<<<<<<< HEAD
         android:title="ALL" />
+=======
+        android:title="View All" />
+>>>>>>> origin/Lounge-Activity-V1.0
 
     <item
         android:id="@+id/hotPostButton"
         app:showAsAction="always"
+<<<<<<< HEAD
         android:title="POPULAR" />
+=======
+        android:title="Hot Posts" />
+>>>>>>> origin/Lounge-Activity-V1.0
 
     <item
     android:id="@+id/new_post"
