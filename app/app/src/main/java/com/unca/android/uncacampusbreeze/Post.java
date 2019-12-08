@@ -7,30 +7,16 @@ import java.util.UUID;
 
 public class Post {
 
-    private UUID postID;
-    private String postHeading;
-    private String postText;
-    private Date date;
-    private String user;
+    String postHeading;
+    String postText;
+    String date;
 
 
-    public Post(String heading, String text, UUID id) {
+
+    public Post(String heading, String text) {
         postHeading = heading;
         postText = text;
-        postID = id;
-        date = new Date();
-    }
-
-    public UUID getId() {
-        return postID;
-    }
-
-    public void setUser(String user){
-        this.user = user;
-    }
-
-    public String getUser(){
-        return user;
+        date = new Date().toString();
     }
 
     public void setPostHeading(String postH){
@@ -48,10 +34,5 @@ public class Post {
     public String getPostText(){
         return postText;
     }
-
-    public Date getDate() {
-        return date;
-    }
-
 
 }

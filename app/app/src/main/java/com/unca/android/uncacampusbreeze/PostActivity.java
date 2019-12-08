@@ -53,10 +53,9 @@ public class PostActivity extends Activity {
     }
 
     public void getUserTextInput(){
-        UUID id = UUID.randomUUID();
         String h = heading.getEditableText().toString();
         String t = text.getEditableText().toString();
-        post = new Post(h, t, id);
+        post = new Post(h, t);
     }
 
     public void sendToFirebasePost(View view){
@@ -74,6 +73,7 @@ public class PostActivity extends Activity {
 
         String heading = post.getPostHeading();
         String text = post.getPostText();
+        String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         Date date = new Date();
 
 //        Toast first = Toast.makeText(getActivity(), "Heading: " + heading, Toast.LENGTH_SHORT);
@@ -85,6 +85,7 @@ public class PostActivity extends Activity {
         messages.put("Heading", heading);
         messages.put("Text", text);
         messages.put("Date", date);
+        messages.put("User ID: ", userID);
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 

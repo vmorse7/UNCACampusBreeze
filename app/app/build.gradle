@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 28
     buildToolsVersion "29.0.2"
     defaultConfig {
         applicationId "com.unca.android.uncacampusbreeze"
         minSdkVersion 21
-        targetSdkVersion 29
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -36,7 +36,6 @@ dependencies {
     */
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'com.google.android.gms:play-services-location:17.0.0'
-    implementation 'androidx.recyclerview:recyclerview:1.1.0-rc01'
     implementation 'com.google.android.material:material:1.0.0'
 
 
@@ -50,7 +49,9 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth:19.1.0'
     implementation 'com.google.firebase:firebase-functions:19.0.1'
     implementation 'com.google.firebase:firebase-database:19.2.0'
-    
+    implementation 'androidx.recyclerview:recyclerview:1.0.0'
+
+
 }
 
 apply plugin: 'com.google.gms.google-services' // according to google, I needed to add to bottom of file, so keep it at bottom file
