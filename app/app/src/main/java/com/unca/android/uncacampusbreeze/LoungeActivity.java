@@ -23,6 +23,9 @@ import androidx.core.content.ContextCompat;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingClient;
+import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -43,6 +46,7 @@ import com.google.firebase.functions.HttpsCallableResult;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.unca.android.uncacampusbreeze.Constants.ERROR_DIALOG_REQUEST;
 import static com.unca.android.uncacampusbreeze.Constants.MAPVIEW_BUNDLE_KEY;
@@ -66,25 +70,54 @@ public class LoungeActivity extends Activity implements OnMapReadyCallback {
     private double userLong = 0;
     private boolean isLoggedIn = false;
 
+    private GeofencingClient geofencingClient;
+    private Geofence geoFence;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lounge);
+    //    setContentView(R.layout.geofence_layout);
         isLoggedIn = true;
         //mMapView.setVisibility(View.INVISIBLE);
-
         //Get server tokens: JOHN
-
         //getLocationPermission();
-
         mFusedLocation = LocationServices.getFusedLocationProviderClient(this);
         if(isLoggedIn){
             getLocationPermission();
-
         }
         startGoogleMap(savedInstanceState);
+//        Geofence geofence;
+//        geofence(30, 35.615709, -82.565609);
 
+        geofencingClient = LocationServices.getGeofencingClient(this);
+        String geoID = UUID.randomUUID().toString();
+
+        geoFence = new Geofence.Builder()
+                .setRequestId(geoID).setCircularRegion(35.615709, -82.565609, 50)
+                .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
+                .build();
     }
+
+    private GeofencingRequest getGeofencingRequest() {
+        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
+        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
+        return builder.build();
+    }
+
+
+//    public Geofence geofence(float radius, double latitude, double longitude) {
+//        String id = UUID.randomUUID().toString();
+//        return new Geofence.Builder()
+//                .setRequestId(id)
+//                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
+//                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_DWELL)
+//                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_EXIT)
+//                .setCircularRegion(latitude, longitude, radius)
+//                .setExpirationDuration(Geofence.NEVER_EXPIRE)
+//                .build();
+//    }
 
 
     public void checkLocation() {
@@ -157,7 +190,7 @@ public class LoungeActivity extends Activity implements OnMapReadyCallback {
 
     public void sendToMessages(View view){
         Log.d(TAG, "Send To Messages is called");
-        Intent startNewActivity = new Intent(this, PostListActivity.class);
+        Intent startNewActivity = new Intent(this, FirebasePosts.class);
         startActivity(startNewActivity);
 
     }
@@ -491,7 +524,6 @@ public class LoungeActivity extends Activity implements OnMapReadyCallback {
             mapViewBundle = new Bundle();
             outState.putBundle(MAPVIEW_BUNDLE_KEY, mapViewBundle);
         }
-
         mMapView.onSaveInstanceState(mapViewBundle);
     }
 

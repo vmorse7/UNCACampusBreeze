@@ -8,6 +8,8 @@
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"></uses-permission>
+
 
     <application
         android:allowBackup="true"
@@ -23,15 +25,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".FirebasePosts"/>
+        <activity android:name=".PostActivity"/>
+
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
-
-        <activity android:name=".PostListActivity"></activity>
-        <activity android:name=".PostPagerActivity"
-            android:parentActivityName=".PostListActivity">
-
-        </activity>
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
@@ -45,5 +45,6 @@
             android:value="@integer/google_play_services_version" />
 
     </application>
+
 
 </manifest>
