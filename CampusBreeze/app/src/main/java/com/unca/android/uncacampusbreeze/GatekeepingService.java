@@ -35,12 +35,12 @@ public class GatekeepingService extends IntentService {
 
     private static final String ACTION_GATEKEEP = "com.unca.android.uncacampusbreeze.action.GATEKEEP";
 
+
     private String mUid;
     private SharedPreferences mCredentials;
 
     public GatekeepingService() {
         super("GatekeepingService");
-
     }
 
     /*
@@ -49,10 +49,10 @@ public class GatekeepingService extends IntentService {
         as that seems kinda pointless and undefined. like an ant losing its colony, I wouldn't
         know what to do.
      */
-    public static void startActionGatekeep(Context context) {
+    public static void startActionGatekeep(Context context, Intent gateStatus) {
         Intent intent = new Intent(context, GatekeepingService.class);
+        intent.` `
         intent.setAction(ACTION_GATEKEEP);
-
         context.startService(intent);
     }
 
@@ -74,7 +74,6 @@ public class GatekeepingService extends IntentService {
         mUid = mCredentials.getString("uid", null);
 
         if (mUid == null) { // we have not been assigned a uid
-            // TODO: make a toast explaining situation
             FirebaseFunctions.getInstance()
                     .getHttpsCallable("createNewAccount")
                     .call()
@@ -88,7 +87,7 @@ public class GatekeepingService extends IntentService {
                     .addOnSuccessListener(new OnSuccessListener<String>() { // registered with server and got a uid
                         @Override
                         public void onSuccess(String s) {
-                            // TODO: make a toast explaining situation
+                            Log.d("GatekeepingActivity", "Phone has registered with server and got a new uid.");
                             mCredentials.edit() // store it for future use
                                     .putString("uid", s)
                                     .apply();
@@ -98,12 +97,13 @@ public class GatekeepingService extends IntentService {
                     .addOnFailureListener(new OnFailureListener() { // could not register with server
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            // TODO: make a toast explaining situation
+                            Log.d("GatekeepingActivity", "Phone could not register with server.");
                         }
                     })
             ;
 
             while (mUid == null) { // tyhe above stuff (FF.getInst...().cal... runs asynchronlouly
+                Log.d("GatekeepingActivity", "Waiting for the new uid to be sent to device by server....");
                 SystemClock.sleep(1000); // so wait until mUid is set to something. Remember we are using an intentservice so we are NOT in UI thread<><><
             }
         }
@@ -118,13 +118,13 @@ public class GatekeepingService extends IntentService {
                                 .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                                     @Override
                                     public void onSuccess(AuthResult authResult) {
-
+                                        Log.d("GatekeepingActivity", "Recieved a custom token from server and successfully used it to sign in to Firebase.");
                                     }
                                 })
                                 .addOnFailureListener(new OnFailureListener() {
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
-
+                                        Log.d("GatekeepingActivity", "Recieved a custom token from server but unsucessfully signed into firebase.");
                                     }
                                 });
                     }
@@ -132,17 +132,19 @@ public class GatekeepingService extends IntentService {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) { // couldn't get a token from the server
-
+                        Log.d("GatekeepingActivity", "Could not get a custom token from server.");
                     }
                 });
 
         while (FirebaseAuth.getInstance().getCurrentUser() == null) { // wait unti lsuer is signed in..... ?????!??!
+            Log.d("GatekeepingActivity", "Waiting to be signed into Firebase...");
             SystemClock.sleep(100);
+            // this is leading to issue maybe because this is   bad way crude way of determining if authoirized with firebase... but we won't worry about it right now....
         }
 
         while (true) { // run until app stops ????? I guess this is what happens????? UHHHHH
             // TODO: Implement thing for hvaing the phone refresh token ever so n minutes... Token expires after 60 minutes sooo.
-            Log.d("GatekeepingActivity", "Running in main loop");
+            Log.d("GatekeepingActivity", "Now I'm doing stuff !");
             SystemClock.sleep(1000); // avoids running cpu at 100%
         }
     }
@@ -165,3 +167,4 @@ public class GatekeepingService extends IntentService {
                 });
     }
 }
+

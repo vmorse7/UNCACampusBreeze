@@ -2,6 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.unca.android.uncacampusbreeze">
 
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -10,8 +17,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <service
-            android:name=".GatekeepingService"
+            android:name=".MyIntentService"
             android:exported="false"></service>
+        <service
+            android:name=".GatekeepingService"
+            android:exported="false" />
 
         <activity android:name=".LoungeActivity">
             <intent-filter>
