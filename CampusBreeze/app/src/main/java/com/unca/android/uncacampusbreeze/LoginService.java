@@ -31,28 +31,28 @@ import com.google.firebase.functions.HttpsCallableResult;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GatekeepingService extends IntentService {
+public class LoginService extends IntentService {
 
-    private static final String ACTION_GATEKEEP = "com.unca.android.uncacampusbreeze.action.GATEKEEP";
-
+    private static final String ACTION_LOGIN = "com.unca.android.uncacampusbreeze.action.Login";
+    private static final String TAG = "LoginService";
 
     private String mUid;
     private SharedPreferences mCredentials;
+    private boolean mLoungeLockedToScreen = true;
 
-    public GatekeepingService() {
-        super("GatekeepingService");
+    public LoginService() {
+        super("LoginService");
     }
 
     /*
-        Starts the service to perform the action of gatekeeping. See the class description above
+        Starts the service to perform the action of loggin in. See the class description above
         for what this entails. But really there should not be multiple actions being queue
         as that seems kinda pointless and undefined. like an ant losing its colony, I wouldn't
         know what to do.
      */
-    public static void startActionGatekeep(Context context, Intent gateStatus) {
-        Intent intent = new Intent(context, GatekeepingService.class);
-        intent.` `
-        intent.setAction(ACTION_GATEKEEP);
+    public static void startActionLogin(Context context) {
+        Intent intent = new Intent(context, LoginService.class);
+        intent.setAction(ACTION_LOGIN);
         context.startService(intent);
     }
 
@@ -60,16 +60,16 @@ public class GatekeepingService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
             final String action = intent.getAction();
-            if (ACTION_GATEKEEP.equals(action)) {
-                handleActionGatekeep();
+            if (ACTION_LOGIN.equals(action)) {
+                handleActionLogin();
             }
         }
     }
 
     /*
-        Handle action Gatekeep in the provided background thread.
+        Handle action Login in the provided background thread.
     */
-    private void handleActionGatekeep() {
+    private void handleActionLogin() {
         mCredentials = getApplicationContext().getSharedPreferences("com.unca.android.uncacampusbreeze.credentials", Context.MODE_PRIVATE);
         mUid = mCredentials.getString("uid", null);
 
@@ -87,7 +87,7 @@ public class GatekeepingService extends IntentService {
                     .addOnSuccessListener(new OnSuccessListener<String>() { // registered with server and got a uid
                         @Override
                         public void onSuccess(String s) {
-                            Log.d("GatekeepingActivity", "Phone has registered with server and got a new uid.");
+                            Log.d(TAG, "Phone has registered with server and got a new uid.");
                             mCredentials.edit() // store it for future use
                                     .putString("uid", s)
                                     .apply();
@@ -97,55 +97,53 @@ public class GatekeepingService extends IntentService {
                     .addOnFailureListener(new OnFailureListener() { // could not register with server
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            Log.d("GatekeepingActivity", "Phone could not register with server.");
+                            Intent i = new Intent("logged_in_status");
+                            i.putExtra("Status", false);
+                            getApplicationContext().sendBroadcast(i);
                         }
-                    })
-            ;
+                    });
 
             while (mUid == null) { // tyhe above stuff (FF.getInst...().cal... runs asynchronlouly
-                Log.d("GatekeepingActivity", "Waiting for the new uid to be sent to device by server....");
-                SystemClock.sleep(1000); // so wait until mUid is set to something. Remember we are using an intentservice so we are NOT in UI thread<><><
+                Log.d(TAG, "Waiting for the new uid to be sent to device by server....");
+                SystemClock.sleep(100); //
             }
         }
 
-        // we have a uid
-        createCustomTokenForUid(mUid)
-                .addOnSuccessListener(new OnSuccessListener<String>() {
-                    @Override
-                    public void onSuccess(String s) {
-                        FirebaseAuth auth = FirebaseAuth.getInstance();
-                        auth.signInWithCustomToken(s)
-                                .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
-                                    @Override
-                                    public void onSuccess(AuthResult authResult) {
-                                        Log.d("GatekeepingActivity", "Recieved a custom token from server and successfully used it to sign in to Firebase.");
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.d("GatekeepingActivity", "Recieved a custom token from server but unsucessfully signed into firebase.");
-                                    }
-                                });
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) { // couldn't get a token from the server
-                        Log.d("GatekeepingActivity", "Could not get a custom token from server.");
-                    }
-                });
-
-        while (FirebaseAuth.getInstance().getCurrentUser() == null) { // wait unti lsuer is signed in..... ?????!??!
-            Log.d("GatekeepingActivity", "Waiting to be signed into Firebase...");
-            SystemClock.sleep(100);
-            // this is leading to issue maybe because this is   bad way crude way of determining if authoirized with firebase... but we won't worry about it right now....
-        }
-
         while (true) { // run until app stops ????? I guess this is what happens????? UHHHHH
-            // TODO: Implement thing for hvaing the phone refresh token ever so n minutes... Token expires after 60 minutes sooo.
-            Log.d("GatekeepingActivity", "Now I'm doing stuff !");
-            SystemClock.sleep(1000); // avoids running cpu at 100%
+            createCustomTokenForUid(mUid)
+                    .addOnSuccessListener(new OnSuccessListener<String>() {
+                        @Override
+                        public void onSuccess(String s) {
+                            FirebaseAuth auth = FirebaseAuth.getInstance();
+                            auth.signInWithCustomToken(s)
+                                    .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+                                        @Override
+                                        public void onSuccess(AuthResult authResult) {
+                                            Intent i = new Intent("logged_in_status");
+                                            i.putExtra("Status", true);
+                                            getApplicationContext().sendBroadcast(i);
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Intent i = new Intent("logged_in_status");
+                                            i.putExtra("Status", false);
+                                            getApplicationContext().sendBroadcast(i);
+                                        }
+                                    });
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) { // couldn't get a token from the server
+                            Intent i = new Intent("logged_in_status");
+                            i.putExtra("Status", false);
+                            getApplicationContext().sendBroadcast(i);
+                        }
+                    });
+
+            SystemClock.sleep(3300000); // every 55 minutes get a new token from the server.
         }
     }
 

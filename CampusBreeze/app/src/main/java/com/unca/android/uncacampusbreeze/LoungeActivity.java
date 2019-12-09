@@ -13,15 +13,17 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.GeoPoint;
 
 public class LoungeActivity extends AppCompatActivity {
-
+    private static String TAG = "LoungeActivity";
     private boolean mLocationGranted = false;
     private Intent mGatekeepingStatusIntent;
+    private boolean mLoggedIntoServer = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,9 +47,8 @@ public class LoungeActivity extends AppCompatActivity {
 //            Log.d(TAG, "location denied");
         }
 
-        mGatekeepingStatusIntent = new Intent(LoungeActivity.this, GatekeepingService.class);
-        mGatekeepingStatusIntent.putExtra("LOUNGE_IS_LOCKED", true);
-        GatekeepingService.startActionGatekeep(getApplicationContext());        // We start the gatekeeping background servic
+        registerReceiver(onLoggedInBroadcast, new IntentFilter("logged_in_status"));
+        LoginService.startActionLogin(getApplicationContext());
     }
 
     @Override
@@ -59,15 +60,15 @@ public class LoungeActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        registerReceiver(onBroadcast, new IntentFilter("unlock_lounge"));
 
+        getLastKnownLocation();
     }
 
     @Override
     public void onPause() {
         super.onPause();
 
-        unregisterReceiver(gatekeepBroadcast);
+
     }
 
     @Override
@@ -86,6 +87,7 @@ public class LoungeActivity extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
 
+        unregisterReceiver(onLoggedInBroadcast);
     }
 
     @Override
@@ -103,32 +105,39 @@ public class LoungeActivity extends AppCompatActivity {
         }
     }
 
-//    private void getLastKnownLocation(){
-//        if(mLocationGranted){
-//            Log.d(TAG, "LAST KNOWN LOCATION IS CALLED");
-//            mFusedLocation.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
-//                @Override
-//                public void onComplete(@NonNull Task<Location> task) {
-//                    if(task.isSuccessful()){
-//                        Location location = task.getResult();
-//                        GeoPoint geoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());
-//                        Log.d(TAG, "latitude: " + geoPoint.getLatitude());
-//                        Log.d(TAG, "longitude: " + geoPoint.getLongitude());
-//                        userLat = location.getLatitude();
-//                        userLong = location.getLongitude();
-//
-//                        //run saveduserLoaction once method is created
-//                    }
-//                }
-//            });
-//
-//        }
-//    }
+    private void getLastKnownLocation(){
+        if(mLocationGranted){
+            Log.d(TAG, "LAST KNOWN LOCATION IS CALLED");
+            mFusedLocation.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+                @Override
+                public void onComplete(@NonNull Task<Location> task) {
+                    if(task.isSuccessful()){
+                        Location location = task.getResult();
+                        GeoPoint geoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());
+                        Log.d(TAG, "latitude: " + geoPoint.getLatitude());
+                        Log.d(TAG, "longitude: " + geoPoint.getLongitude());
+                        userLat = location.getLatitude();
+                        userLong = location.getLongitude();
 
-    private BroadcastReceiver gatekeepBroadcast = new BroadcastReceiver() {
+                        //run saveduserLoaction once method is created
+                    }
+                }
+            });
+
+        }
+    }
+
+    private BroadcastReceiver onLoggedInBroadcast = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent i) {
-
+            boolean isLoggedIn = i.getBooleanExtra("Status", false);
+            if (isLoggedIn) {
+                mLoggedIntoServer = true;
+                Toast.makeText(getApplicationContext(), "Logged into server.", Toast.LENGTH_SHORT).show();
+            } else {
+                mLoggedIntoServer = false;
+                Toast.makeText(getApplicationContext(), "Could not log into server.", Toast.LENGTH_SHORT).show();
+            }
         }
     };
 }

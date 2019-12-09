@@ -17,11 +17,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <service
-            android:name=".MyIntentService"
+            android:name=".LoginService"
             android:exported="false"></service>
-        <service
-            android:name=".GatekeepingService"
-            android:exported="false" />
 
         <activity android:name=".LoungeActivity">
             <intent-filter>
