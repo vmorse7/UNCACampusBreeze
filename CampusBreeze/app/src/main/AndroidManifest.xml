@@ -17,8 +17,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <service
-            android:name=".LoginService"
+            android:name=".LocationService"
             android:exported="false"></service>
+        <service
+            android:name=".LoginService"
+            android:exported="false" />
 
         <activity android:name=".LoungeActivity">
             <intent-filter>
