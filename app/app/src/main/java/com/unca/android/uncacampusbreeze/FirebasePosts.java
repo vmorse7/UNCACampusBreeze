@@ -18,8 +18,10 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class FirebasePosts extends Activity {
 
@@ -30,7 +32,7 @@ public class FirebasePosts extends Activity {
     private static ArrayList<String> mDate = new ArrayList<>();
 
     RecyclerView recyclerView;
-    static RecyclerViewAdapter adapter;
+    RecyclerViewAdapter adapter;
     View parentLayout;
 
 
@@ -44,23 +46,15 @@ public class FirebasePosts extends Activity {
 
        // displayFirestoreData();
 
-        mHeading.add("Heading 1");
-        mHeading.add("Heading 2");
-        mHeading.add("Heading 3");
-        mHeading.add("Heading 4");
+//        mHeading.add("Heading 1");
+//        mText.add("Text 1");
+//        mDate.add("Date 1");
 
-        mText.add("Text 1");
-        mText.add("Text 2");
-        mText.add("Text 3");
-        mText.add("Text 4");
-
-        mDate.add("Date 1");
-        mDate.add("Date 2");
-        mDate.add("Date 3");
-        mDate.add("Date 4");
         createRecyclerView();
+        adapter.notifyDataSetChanged();
 
     }
+
 
     private void createRecyclerView(){
         recyclerView = findViewById(R.id.post_recycler_view);
@@ -114,33 +108,39 @@ public class FirebasePosts extends Activity {
 
         DocumentReference docRef = db.collection("userMessages").document(PostActivity.getID());
 
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document != null) {
-                        //Log.i("LOGGER","First "+document.getString("first"));
-//                        Toast first = Toast.makeText(getActivity(), "Heading: " + document.getString("Heading"), Toast.LENGTH_SHORT);
-//                        first.show();
-                        Log.d("Toast", "Heading: " + document.getString("Heading"));
-                        Log.d("Toast", "Text: " + document.getString("Text"));
+//        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//            @Override
+//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                if (task.isSuccessful()) {
+//                    DocumentSnapshot document = task.getResult();
+//                    if (document != null) {
+//
+//                        Log.d("Toast", "Heading: " + document.getString("Heading"));
+//                        Log.d("Toast", "Text: " + document.getString("Text"));
+//                        mHeading.add(document.getString("Heading"));
+//                        mText.add(document.getString("Text"));
+//                        //mDate.add(document.getString("Date"));
+//
+//                    }
+//                }
+//
+//            }
+//        });
 
-                        mHeading.add(document.getString("Heading"));
-                        //mHeading.notify();
-                        mText.add(document.getString("Text"));
-                       // mText.notify();
 
-                        //mDate.add(document.getString("Date"));
+        FirebaseFirestore.getInstance()
+                .collection("userMessages")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            List<DocumentSnapshot> myListOfDocuments = task.getResult().getDocuments();
+                            Log.d("post: ", "" + myListOfDocuments );
 
-
+                        }
                     }
-                   // adapter.notifyDataSetChanged();
-
-                }
-
-            }
-        });
+                });
 
 
 

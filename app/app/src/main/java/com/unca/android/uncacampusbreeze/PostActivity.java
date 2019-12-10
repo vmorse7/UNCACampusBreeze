@@ -51,6 +51,8 @@ public class PostActivity extends Activity {
         post = new Post(h, t);
     }
 
+    
+
     public void sendToFirebasePost(View view){
 
         getUserTextInput();
