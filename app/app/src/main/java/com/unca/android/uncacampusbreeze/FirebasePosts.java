@@ -25,12 +25,12 @@ public class FirebasePosts extends Activity {
 
     Button newPostButton;
 
-    private ArrayList<String> mHeading = new ArrayList<>();
-    private ArrayList<String> mText = new ArrayList<>();
-    private ArrayList<String> mDate = new ArrayList<>();
+    private static ArrayList<String> mHeading = new ArrayList<>();
+    private static  ArrayList<String> mText = new ArrayList<>();
+    private static ArrayList<String> mDate = new ArrayList<>();
 
     RecyclerView recyclerView;
-    RecyclerViewAdapter adapter;
+    static RecyclerViewAdapter adapter;
     View parentLayout;
 
 
@@ -125,12 +125,20 @@ public class FirebasePosts extends Activity {
 //                        first.show();
                         Log.d("Toast", "Heading: " + document.getString("Heading"));
                         Log.d("Toast", "Text: " + document.getString("Text"));
-                    } else {
-                        //Log.d("LOGGER", "No such document");
+
+                        mHeading.add(document.getString("Heading"));
+                        //mHeading.notify();
+                        mText.add(document.getString("Text"));
+                       // mText.notify();
+
+                        //mDate.add(document.getString("Date"));
+
+
                     }
-                } else {
-                    //Log.d("LOGGER", "get failed with ", task.getException());
+                   // adapter.notifyDataSetChanged();
+
                 }
+
             }
         });
 
