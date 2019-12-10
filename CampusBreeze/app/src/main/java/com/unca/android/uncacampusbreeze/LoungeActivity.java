@@ -31,7 +31,7 @@ public class LoungeActivity extends AppCompatActivity {
         mContext = getApplicationContext();
 
         registerReceiver(onLoggedInBroadcast, new IntentFilter("logged_in_status"));
-        registerReceiver(onCampusBroadcast, new IntentFilter("on_campus_status"));
+        registerReceiver(onCampusBroadcast, new IntentFilter("location_status"));
 
         LoginService.startActionLogin(getApplicationContext());
 
@@ -106,11 +106,17 @@ public class LoungeActivity extends AppCompatActivity {
     private BroadcastReceiver onCampusBroadcast = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent i) {
-            boolean isOnCampus = i.getBooleanExtra("Status", false);
-            if (isOnCampus) {
-                updateRockyMessage("You are on campus. " + i.getFloatExtra("Distance", (float) 0.0));
+
+            boolean isError = i.getBooleanExtra("error", true);
+            if (isError) {
+                updateRockyMessage("Error in getting location.");
             } else {
-                updateRockyMessage("You are not on campus. "  + i.getFloatExtra("Distance", (float) 0.0));
+                boolean isOnCampus = i.getBooleanExtra("on_campus", false);
+                if (isOnCampus) {
+                    updateRockyMessage("You are on campus. ");
+                } else {
+                    updateRockyMessage("You are not on campus. ");
+                }
             }
         }
     };

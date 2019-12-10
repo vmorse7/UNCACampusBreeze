@@ -26,8 +26,13 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Source;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 
@@ -35,20 +40,12 @@ public class LocationService extends IntentService {
 
     private static final String ACTION_START_LOCATION_SERVICE = "com.unca.android.uncacampusbreeze.action.Start_Location_Service";
     private static final String TAG = "LocationService";
-    private static final int LOCATION_UPDATE_INTERVAL = 1000;
-    private static final int FASTEST_LOCATION_UPDATE_INTERVAL = 500;
-
-    public static enum CampusLocations {
-        LIBRARY, LIBRARY_FRONT_DESK, RHODES_ROBINSON;
-    }
+    private static final int LOCATION_UPDATE_INTERVAL = 5000;
+    private static final int FASTEST_LOCATION_UPDATE_INTERVAL = 1000;
 
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationRequest mLocationRequest;
-    private Location mCampusLocation = new Location("");
-    private float mMaximumAllowedDistanceFromCampusLocation;
-    private Looper mLooper;
     private Location mCurrentLocation;
-    private boolean mDeviceIsOnCampus;
     private LocationCallback locationCallback;
 
     public LocationService() {
@@ -73,35 +70,41 @@ public class LocationService extends IntentService {
     }
 
     private void handleActionStartLocationService() {
-        // setup
         Task<DocumentSnapshot> getGeofenceTask = FirebaseFirestore.getInstance()
                 .collection("geofences")
-                .document("MAIN_CAMPUS")
+                .document("library_front_desk")
                 .get(Source.SERVER);
+
+        Location campusCenter = new Location("");
+        float campusRadius = Long.MAX_VALUE;
+        try {
+            DocumentSnapshot ds = Tasks.await(getGeofenceTask);
+            GeoPoint geopointOfCampusCenter = (GeoPoint) ds.get("center");
+            campusCenter.setLatitude(geopointOfCampusCenter.getLatitude());
+            campusCenter.setLongitude(geopointOfCampusCenter.getLongitude());
+            campusRadius = (float) ds.getLong("radius").floatValue();
+        } catch (ExecutionException e) {
+            Intent i = new Intent("location_status");
+            i.putExtra("error", true);
+            i.putExtra("on_campus", false);
+            getApplicationContext().sendBroadcast(i);
+        } catch (InterruptedException e) {
+            Intent i = new Intent("location_status");
+            i.putExtra("error", true);
+            i.putExtra("on_campus", false);
+            getApplicationContext().sendBroadcast(i);
+        }
+
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
         mLocationRequest = LocationRequest.create();
         mLocationRequest.setInterval(LOCATION_UPDATE_INTERVAL);
         mLocationRequest.setFastestInterval(FASTEST_LOCATION_UPDATE_INTERVAL);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-
-        try {
-            DocumentSnapshot ds = Tasks.await(getGeofenceTask);
-            GeoPoint geopointFromServer = (GeoPoint) ds.get("center");
-            mCampusLocation.setLatitude(geopointFromServer.getLatitude());
-            mCampusLocation.setLongitude(geopointFromServer.getLongitude());
-            mMaximumAllowedDistanceFromCampusLocation = (float) ds.getLong("radius").floatValue();
-        } catch (ExecutionException e) {
-            broadcastDeviceIsNotOnCampus();
-        } catch (InterruptedException e) {
-            broadcastDeviceIsNotOnCampus();
-        }
-
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 if (locationResult == null) {
-                    Log.d(TAG, "locationResult was null");
                     return;
                 }
 
@@ -111,48 +114,30 @@ public class LocationService extends IntentService {
             }
         };
 
-
         mFusedLocationClient.requestLocationUpdates(mLocationRequest, locationCallback, Looper.getMainLooper());
 
         while (true) {
-
             if (mCurrentLocation != null) {
-
-                
-
-                float distanceFromCampusLocation = mCampusLocation.distanceTo(mCurrentLocation);
-                if (distanceFromCampusLocation < mMaximumAllowedDistanceFromCampusLocation) {
-                    broadcastDeviceIsOnCampus(distanceFromCampusLocation);
+                float distanceFromCampus = campusCenter.distanceTo(mCurrentLocation);
+                if (distanceFromCampus < campusRadius) {
+                    Intent i = new Intent("location_status");
+                    i.putExtra("error", false);
+                    i.putExtra("on_campus", true);
+                    getApplicationContext().sendBroadcast(i);
                 } else {
-                    broadcastDeviceIsNotOnCampus(distanceFromCampusLocation);
+                    Intent i = new Intent("location_status");
+                    i.putExtra("error", false);
+                    i.putExtra("on_campus", false);
+                    getApplicationContext().sendBroadcast(i);
                 }
+            } else {
+                Intent i = new Intent("location_status");
+                i.putExtra("error", true);
+                i.putExtra("on_campus", false);
+                getApplicationContext().sendBroadcast(i);
             }
 
             SystemClock.sleep(100);
         }
-    }
-
-    private void broadcastDeviceLocation() {
-
-    }
-
-    private void broadcastDeviceIsOnCampus(float distance) {
-        Intent i = new Intent("on_campus_status");
-        i.putExtra("Status", true);
-        i.putExtra("Distance", distance);
-        getApplicationContext().sendBroadcast(i);
-    }
-
-    private void broadcastDeviceIsNotOnCampus() {
-        Intent i = new Intent("on_campus_status");
-        i.putExtra("Status", false);
-        getApplicationContext().sendBroadcast(i);
-    }
-
-    private void broadcastDeviceIsNotOnCampus(float distance) {
-        Intent i = new Intent("on_campus_status");
-        i.putExtra("Status", false);
-        i.putExtra("Distance", distance);
-        getApplicationContext().sendBroadcast(i);
     }
 }
