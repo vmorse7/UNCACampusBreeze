@@ -31,6 +31,7 @@ import java.util.UUID;
 
 import static android.content.ContentValues.TAG;
 import static com.google.firebase.database.FirebaseDatabase.getInstance;
+import static com.unca.android.uncacampusbreeze.FirebasePosts.displayFirestoreData;
 
 public class PostActivity extends Activity {
 
@@ -63,6 +64,8 @@ public class PostActivity extends Activity {
         getUserTextInput();
 
         createMessageData(post);
+
+        displayFirestoreData();
 
         Intent sendToPost = new Intent(this, FirebasePosts.class);
         startActivity(sendToPost);
