@@ -14,10 +14,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -30,9 +29,10 @@ public class FirebasePosts extends Activity {
     private static ArrayList<String> mHeading = new ArrayList<>();
     private static  ArrayList<String> mText = new ArrayList<>();
     private static ArrayList<String> mDate = new ArrayList<>();
+    private static Context c;
 
     RecyclerView recyclerView;
-    RecyclerViewAdapter adapter;
+    static RecyclerViewAdapter adapter = new RecyclerViewAdapter(mHeading,mText,mDate, c);
     View parentLayout;
 
 
@@ -43,16 +43,16 @@ public class FirebasePosts extends Activity {
         setContentView(R.layout.post_list_view);
 
         newPostButton = (Button) findViewById(R.id.new_post);
-
-       // displayFirestoreData();
-
-//        mHeading.add("Heading 1");
-//        mText.add("Text 1");
-//        mDate.add("Date 1");
-
-        createRecyclerView();
         adapter.notifyDataSetChanged();
+        createRecyclerView();
+        displayFirestoreData();
 
+
+
+
+
+
+        //adapter.notifyDataSetChanged();
     }
 
 
@@ -70,73 +70,53 @@ public class FirebasePosts extends Activity {
         startActivity(sendToPost);
     }
 
+    public void refreshList(){
+        Button b = (Button) findViewById(R.id.refresh);
+        b.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                displayFirestoreData();
+            }
+        });
+    }
+
     public Context getActivity() {
         return FirebasePosts.this;
     }
 
+
+
+
     public static void displayFirestoreData(){
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference collectionReference = db.collection("userMessages");
-//        Query postQuery = collectionReference.
-//                whereEqualTo("User ID", FirebaseAuth.getInstance().getCurrentUser().getUid());
-//        postQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-//            @Override
-//            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-//                if(task.isSuccessful()){
-//                    for(QueryDocumentSnapshot document: task.getResult()){
-//                        Post post = document.toObject(Post.class);
-//                        mHeading.add(document.getData().toString());
-//                        mText.add(document.getData().toString());
-//                        mDate.add(document.getData().toString());
-//                        Toast first = Toast.makeText(getActivity(), "Query returned: " + document.toString(), Toast.LENGTH_SHORT);
-//                        first.show();
-//                    }
-//                    adapter.notifyDataSetChanged();
-//                    Toast first = Toast.makeText(getActivity(), "Query Successful", Toast.LENGTH_SHORT);
-//                    first.show();
-//                }else{
-//                    Toast first = Toast.makeText(getActivity(), "Query Failed", Toast.LENGTH_SHORT);
-//                    first.show();
-//                }
-//            }
-//        });
-
-
-//        Toast first = Toast.makeText(getActivity(), "Query returned: ", Toast.LENGTH_SHORT);
-//        first.show();
-
-
-        DocumentReference docRef = db.collection("userMessages").document(PostActivity.getID());
-
-//        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//            @Override
-//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                if (task.isSuccessful()) {
-//                    DocumentSnapshot document = task.getResult();
-//                    if (document != null) {
-//
-//                        Log.d("Toast", "Heading: " + document.getString("Heading"));
-//                        Log.d("Toast", "Text: " + document.getString("Text"));
-//                        mHeading.add(document.getString("Heading"));
-//                        mText.add(document.getString("Text"));
-//                        //mDate.add(document.getString("Date"));
-//
-//                    }
-//                }
-//
-//            }
-//        });
 
 
         FirebaseFirestore.getInstance()
                 .collection("userMessages")
+                .orderBy("Date", Query.Direction.DESCENDING)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        Log.d("post", "ON COMPLETE CALLED");
                         if (task.isSuccessful()) {
                             List<DocumentSnapshot> myListOfDocuments = task.getResult().getDocuments();
-                            Log.d("post: ", "" + myListOfDocuments );
+                            mHeading.clear();
+                            mText.clear();
+                            mDate.clear();
+
+
+
+                            for(int i = 0; i < myListOfDocuments.size();i++){
+
+                                Log.d("post", "" +myListOfDocuments.get(i).get("Heading"));
+                                mHeading.add(myListOfDocuments.get(i).get("Heading").toString());
+                                mText.add(myListOfDocuments.get(i).get("Text").toString());
+                                mDate.add(myListOfDocuments.get(i).get("Date").toString());
+                                adapter.notifyDataSetChanged();
+
+                            }
 
                         }
                     }
