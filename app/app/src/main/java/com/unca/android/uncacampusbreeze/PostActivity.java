@@ -4,36 +4,28 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import static android.content.ContentValues.TAG;
-import static com.google.firebase.database.FirebaseDatabase.getInstance;
 import static com.unca.android.uncacampusbreeze.FirebasePosts.displayFirestoreData;
 
 public class PostActivity extends Activity {
+
+    public static String ID;
 
     EditText heading;
     EditText text;
@@ -107,5 +99,12 @@ public class PostActivity extends Activity {
                         Log.w(TAG, "Error writing document", e);
                     }
                 });
+
+        Log.d("Toast", "user: " + documentReference.getId());
+        ID = documentReference.getId();
+    }
+
+    public static String getID(){
+        return ID;
     }
 }

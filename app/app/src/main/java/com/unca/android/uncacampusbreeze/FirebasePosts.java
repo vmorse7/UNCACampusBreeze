@@ -7,8 +7,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -16,20 +14,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.*;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class FirebasePosts extends Activity {
 
@@ -122,7 +112,7 @@ public class FirebasePosts extends Activity {
 //        first.show();
 
 
-        DocumentReference docRef = db.collection("userMessages").document();
+        DocumentReference docRef = db.collection("userMessages").document(PostActivity.getID());
 
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -133,7 +123,8 @@ public class FirebasePosts extends Activity {
                         //Log.i("LOGGER","First "+document.getString("first"));
 //                        Toast first = Toast.makeText(getActivity(), "Heading: " + document.getString("Heading"), Toast.LENGTH_SHORT);
 //                        first.show();
-                        Log.d("Toast", "Id: " + document.getId() + " testing " + document.getString("Heading"));
+                        Log.d("Toast", "Heading: " + document.getString("Heading"));
+                        Log.d("Toast", "Text: " + document.getString("Text"));
                     } else {
                         //Log.d("LOGGER", "No such document");
                     }
