@@ -1,6 +1,5 @@
 package com.unca.android.uncacampusbreeze;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -10,20 +9,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.os.Bundle;
-import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.GeoPoint;
 
 public class LoungeActivity extends AppCompatActivity {
 
     private static String TAG = "LoungeActivity";
+
     private boolean mLocationGranted = false;
-    private Intent mGatekeepingStatusIntent;
     private boolean mLoggedIntoServer = false;
     private boolean mDeviceInValidLocation = false;
     private Context mContext = null;
@@ -99,10 +94,10 @@ public class LoungeActivity extends AppCompatActivity {
             if (isLoggedIn) {
                 mLoggedIntoServer = true;
                 LocationService.startActionStartLocationService(getApplicationContext());
-                Toast.makeText(getApplicationContext(), "Logged into server.", Toast.LENGTH_SHORT).show();
+                updateRockyMessage("Logged into server.");
             } else {
                 mLoggedIntoServer = false;
-                Toast.makeText(getApplicationContext(), "Could not log into server.", Toast.LENGTH_SHORT).show();
+                updateRockyMessage("Could not log into server.");
             }
         }
     };
@@ -112,11 +107,16 @@ public class LoungeActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent i) {
             boolean isOnCampus = i.getBooleanExtra("Status", false);
             if (isOnCampus) {
-                Toast.makeText(getApplicationContext(), "You are on campus.", Toast.LENGTH_SHORT).show();
+                updateRockyMessage("You are on campus.");
             } else {
-                Toast.makeText(getApplicationContext(), "Not on campus.", Toast.LENGTH_SHORT).show();
+                updateRockyMessage("You are not on campus.");
             }
         }
     };
+
+    private void updateRockyMessage(String message) {
+        TextView textView = (TextView) findViewById(R.id.rocky_message);
+        textView.setText(message);
+    }
 
 }

@@ -63,66 +63,61 @@ public class LocationService extends IntentService {
                 .collection("geofences")
                 .document("MAIN_CAMPUS")
                 .get(Source.SERVER);
+
+        Location geofence = new Location("");
+        int geofenceRadius = 0;
+
         try {
             DocumentSnapshot ds = Tasks.await(getGeofenceTask);
-            geopointOfMainCampusCenter = (GeoPoint) ds.get("center");
-            radiusOfMainCampus = (int) ds.getLong("radius").intValue();
+            GeoPoint geopointFromServer = (GeoPoint) ds.get("center");
+            geofence.setLatitude(geopointFromServer.getLatitude());
+            geofence.setLongitude(geopointFromServer.getLongitude());
+            geofenceRadius = (int) ds.getLong("radius").intValue();
         } catch (ExecutionException e) {
-
+            Intent i = new Intent("on_campus_status");
+            i.putExtra("Status", false);
+            getApplicationContext().sendBroadcast(i);
         } catch (InterruptedException e) {
-
+            Intent i = new Intent("on_campus_status");
+            i.putExtra("Status", false);
+            getApplicationContext().sendBroadcast(i);
         }
 
 
-        mFl = LocationServices.getFusedLocationProviderClient(getApplicationContext());
+        FusedLocationProviderClient mFl = LocationServices.getFusedLocationProviderClient(getApplicationContext());
+        long timeOfLastLocationUpdate = System.currentTimeMillis();
+
+        long secondsSinceLastLocationUpdate = 6;
         while (true) {
-            Log.d(TAG, "At beginning of loop in LocationServiceLoop().");
-            mFl.getLastLocation()
-                    .addOnSuccessListener(new OnSuccessListener<Location>() {
-                        @Override
-                        public void onSuccess(Location location) {
-                            Location locationOfMainCampus = new Location("");
-                            locationOfMainCampus.setLatitude(geopointOfMainCampusCenter.getLatitude());
-                            locationOfMainCampus.setLongitude(geopointOfMainCampusCenter.getLongitude());
+            if (secondsSinceLastLocationUpdate > 1) {
+                Task<Location> getLocationTask = mFl.getLastLocation();
 
-                            if (locationOfMainCampus.distanceTo(location) > (float) radiusOfMainCampus) {
-                                Log.d(TAG, "YOU ARE NOT ON CAMPUS");
-                                Intent i = new Intent("on_campus_status");
-                                i.putExtra("Status", false);
-                                getApplicationContext().sendBroadcast(i);
-                            } else {
-                                Intent i = new Intent("on_campus_status");
-                                Log.d(TAG, "YOU ARE ON CAMPUS");
-                                i.putExtra("Status", true);
-                                getApplicationContext().sendBroadcast(i);
-                            }
+                try {
+                    Location lastLocationOfDevice = Tasks.await(getLocationTask);
+                    timeOfLastLocationUpdate = System.currentTimeMillis();
+                    if (geofence.distanceTo(lastLocationOfDevice) < geofenceRadius) {
+                        Intent i = new Intent("on_campus_status");
+                        i.putExtra("Status", true);
+                        getApplicationContext().sendBroadcast(i);
+                    } else {
+                        Intent i = new Intent("on_campus_status");
+                        i.putExtra("Status", false);
+                        getApplicationContext().sendBroadcast(i);
+                    }
+                } catch (ExecutionException e) {
+                    Intent i = new Intent("on_campus_status");
+                    i.putExtra("Status", false);
+                    getApplicationContext().sendBroadcast(i);
+                } catch (InterruptedException e) {
+                    Intent i = new Intent("on_campus_status");
+                    i.putExtra("Status", false);
+                    getApplicationContext().sendBroadcast(i);
+                }
+            }
 
-                        }
-                    });
-
-            SystemClock.sleep(5000);
+            SystemClock.sleep(100);
+            secondsSinceLastLocationUpdate = (long) ((System.currentTimeMillis() - timeOfLastLocationUpdate) / 1000);
         }
     }
-
-//        FirebaseFirestore
-//                .getInstance()
-//                .collection("geofences")
-//                .document("MAIN_CAMPUS")
-//                .get(Source.SERVER)
-//                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-//                    @Override
-//                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-//                        if (documentSnapshot.exists()) {
-//                            geopointOfMainCampusCenter = (GeoPoint) documentSnapshot.get("center");
-//                            radiusOfMainCampus = (int) documentSnapshot.getLong("radius").intValue();
-//                            runLocationServiceLoop();
-//                        }
-//                    }
-//                });
-//
-//        while (true) {  // I DK if this is needed, but seems reasonable.
-//            SystemClock.sleep(1000);
-//        }
-
 
 }
