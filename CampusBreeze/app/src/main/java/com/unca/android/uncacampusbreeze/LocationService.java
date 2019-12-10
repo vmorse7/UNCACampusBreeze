@@ -4,12 +4,16 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.content.Context;
 import android.location.Location;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -31,11 +35,21 @@ public class LocationService extends IntentService {
 
     private static final String ACTION_START_LOCATION_SERVICE = "com.unca.android.uncacampusbreeze.action.Start_Location_Service";
     private static final String TAG = "LocationService";
+    private static final int LOCATION_UPDATE_INTERVAL = 1000;
+    private static final int FASTEST_LOCATION_UPDATE_INTERVAL = 500;
 
-    private FusedLocationProviderClient mFl;
-    private GeoPoint geopointOfMainCampusCenter = null;
-    private int radiusOfMainCampus = 0;
-//    private GeoPoint geopointOfDevicesCurrentLocation = null;
+    public static enum CampusLocations {
+        LIBRARY, LIBRARY_FRONT_DESK, RHODES_ROBINSON;
+    }
+
+    private FusedLocationProviderClient mFusedLocationClient;
+    private LocationRequest mLocationRequest;
+    private Location mCampusLocation = new Location("");
+    private float mMaximumAllowedDistanceFromCampusLocation;
+    private Looper mLooper;
+    private Location mCurrentLocation;
+    private boolean mDeviceIsOnCampus;
+    private LocationCallback locationCallback;
 
     public LocationService() {
         super("LocationService");
@@ -44,6 +58,7 @@ public class LocationService extends IntentService {
     public static void startActionStartLocationService(Context context) {
         Intent intent = new Intent(context, LocationService.class);
         intent.setAction(ACTION_START_LOCATION_SERVICE);
+
         context.startService(intent);
     }
 
@@ -58,66 +73,86 @@ public class LocationService extends IntentService {
     }
 
     private void handleActionStartLocationService() {
-
+        // setup
         Task<DocumentSnapshot> getGeofenceTask = FirebaseFirestore.getInstance()
                 .collection("geofences")
                 .document("MAIN_CAMPUS")
                 .get(Source.SERVER);
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
+        mLocationRequest = LocationRequest.create();
+        mLocationRequest.setInterval(LOCATION_UPDATE_INTERVAL);
+        mLocationRequest.setFastestInterval(FASTEST_LOCATION_UPDATE_INTERVAL);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-        Location geofence = new Location("");
-        int geofenceRadius = 0;
 
         try {
             DocumentSnapshot ds = Tasks.await(getGeofenceTask);
             GeoPoint geopointFromServer = (GeoPoint) ds.get("center");
-            geofence.setLatitude(geopointFromServer.getLatitude());
-            geofence.setLongitude(geopointFromServer.getLongitude());
-            geofenceRadius = (int) ds.getLong("radius").intValue();
+            mCampusLocation.setLatitude(geopointFromServer.getLatitude());
+            mCampusLocation.setLongitude(geopointFromServer.getLongitude());
+            mMaximumAllowedDistanceFromCampusLocation = (float) ds.getLong("radius").floatValue();
         } catch (ExecutionException e) {
-            Intent i = new Intent("on_campus_status");
-            i.putExtra("Status", false);
-            getApplicationContext().sendBroadcast(i);
+            broadcastDeviceIsNotOnCampus();
         } catch (InterruptedException e) {
-            Intent i = new Intent("on_campus_status");
-            i.putExtra("Status", false);
-            getApplicationContext().sendBroadcast(i);
+            broadcastDeviceIsNotOnCampus();
         }
 
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) {
+                    Log.d(TAG, "locationResult was null");
+                    return;
+                }
 
-        FusedLocationProviderClient mFl = LocationServices.getFusedLocationProviderClient(getApplicationContext());
-        long timeOfLastLocationUpdate = System.currentTimeMillis();
+                for (Location location : locationResult.getLocations()) {
+                    mCurrentLocation = location;
+                }
+            }
+        };
 
-        long secondsSinceLastLocationUpdate = 6;
+
+        mFusedLocationClient.requestLocationUpdates(mLocationRequest, locationCallback, Looper.getMainLooper());
+
         while (true) {
-            if (secondsSinceLastLocationUpdate > 1) {
-                Task<Location> getLocationTask = mFl.getLastLocation();
 
-                try {
-                    Location lastLocationOfDevice = Tasks.await(getLocationTask);
-                    timeOfLastLocationUpdate = System.currentTimeMillis();
-                    if (geofence.distanceTo(lastLocationOfDevice) < geofenceRadius) {
-                        Intent i = new Intent("on_campus_status");
-                        i.putExtra("Status", true);
-                        getApplicationContext().sendBroadcast(i);
-                    } else {
-                        Intent i = new Intent("on_campus_status");
-                        i.putExtra("Status", false);
-                        getApplicationContext().sendBroadcast(i);
-                    }
-                } catch (ExecutionException e) {
-                    Intent i = new Intent("on_campus_status");
-                    i.putExtra("Status", false);
-                    getApplicationContext().sendBroadcast(i);
-                } catch (InterruptedException e) {
-                    Intent i = new Intent("on_campus_status");
-                    i.putExtra("Status", false);
-                    getApplicationContext().sendBroadcast(i);
+            if (mCurrentLocation != null) {
+
+                
+
+                float distanceFromCampusLocation = mCampusLocation.distanceTo(mCurrentLocation);
+                if (distanceFromCampusLocation < mMaximumAllowedDistanceFromCampusLocation) {
+                    broadcastDeviceIsOnCampus(distanceFromCampusLocation);
+                } else {
+                    broadcastDeviceIsNotOnCampus(distanceFromCampusLocation);
                 }
             }
 
             SystemClock.sleep(100);
-            secondsSinceLastLocationUpdate = (long) ((System.currentTimeMillis() - timeOfLastLocationUpdate) / 1000);
         }
     }
 
+    private void broadcastDeviceLocation() {
+
+    }
+
+    private void broadcastDeviceIsOnCampus(float distance) {
+        Intent i = new Intent("on_campus_status");
+        i.putExtra("Status", true);
+        i.putExtra("Distance", distance);
+        getApplicationContext().sendBroadcast(i);
+    }
+
+    private void broadcastDeviceIsNotOnCampus() {
+        Intent i = new Intent("on_campus_status");
+        i.putExtra("Status", false);
+        getApplicationContext().sendBroadcast(i);
+    }
+
+    private void broadcastDeviceIsNotOnCampus(float distance) {
+        Intent i = new Intent("on_campus_status");
+        i.putExtra("Status", false);
+        i.putExtra("Distance", distance);
+        getApplicationContext().sendBroadcast(i);
+    }
 }

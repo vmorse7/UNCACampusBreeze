@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -36,12 +37,12 @@ public class LoungeActivity extends AppCompatActivity {
 
         // ask for location permission if not granted
         if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
-                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) { //Check for ACCESS FINE LOCATION permission
             mLocationGranted = true;
         } else {
             ActivityCompat.requestPermissions(this,
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     9002);
             mLocationGranted = false;
         }
@@ -107,9 +108,9 @@ public class LoungeActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent i) {
             boolean isOnCampus = i.getBooleanExtra("Status", false);
             if (isOnCampus) {
-                updateRockyMessage("You are on campus.");
+                updateRockyMessage("You are on campus. " + i.getFloatExtra("Distance", (float) 0.0));
             } else {
-                updateRockyMessage("You are not on campus.");
+                updateRockyMessage("You are not on campus. "  + i.getFloatExtra("Distance", (float) 0.0));
             }
         }
     };
