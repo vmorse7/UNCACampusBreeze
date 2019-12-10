@@ -1,5 +1,5 @@
 body {
-    background-color: cornsilk;
+    background-color: white;
     margin: 0;
     padding: 0;
     display: flex;
@@ -41,7 +41,7 @@ body {
     border: .5px solid black;
 }
 
-.content {
+#content {
     width: 100%;
     height:164px;
     display: flex;

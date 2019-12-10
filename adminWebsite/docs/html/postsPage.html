@@ -3,6 +3,7 @@
     <head>
         <title>UNCA Campus Breeze Administration Site</title>
         <link href="../css/postsPage.css" rel="stylesheet" type="text/css">
+        <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
     </head>
     <body>
         <div id="navbar">
@@ -16,11 +17,12 @@
                     <ol>Permissions</ol>
                     <ol>Settings</ol>
                 </li>
+                <button onclick="deletePosts()">Delete All Posts</button>
             </div>
         </div>
         
         <div id="postsCont">
-            <p class="content">
+            <p id="content">
             </p>
         </div>
         
@@ -75,16 +77,19 @@
                   projectId: 'uncacampusbreeze'
             });
             
+            
             var db = firebase.firestore();
+            var myMessages = db.collection("userMessages");
             
-            var line = "--------------------------";
             
-            db.collection("userMessages").get().then((querySnapshot) => {
+            
+            myMessages.get().then((querySnapshot) => {
                 querySnapshot.forEach((doc) => {
-                    var content = "";
+                    var content = "yeehaw";
                     
-                    content += '<p>' + '</p>';
+                    content += ('<p>' + doc.data() + '</p>');
                     
+                    $("#content").html(content);
                     //document.getElementById("content").innerHTML = content;
                     
                     console.log(doc.data());
@@ -92,6 +97,13 @@
                 });
             });
             
+            function deletePosts() {
+               myMessages.doc().delete().then(function() {
+                    console.log("Document successfully deleted!");
+                }).catch(function(error) {
+                   console.error("Error removing document: ", error);
+                }); 
+            }
             
             /*
             console.log("Users: ");
