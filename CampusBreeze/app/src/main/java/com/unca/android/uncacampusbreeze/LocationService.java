@@ -12,7 +12,11 @@ import androidx.annotation.NonNull;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -20,13 +24,18 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.Source;
 
+import java.util.concurrent.ExecutionException;
+
 
 public class LocationService extends IntentService {
 
-    private static final String ACTION_START_LOCATION_SERVICE = "com.unca.android.uncacampusbreeze.action.START_LOCATION_SERVICE";
+    private static final String ACTION_START_LOCATION_SERVICE = "com.unca.android.uncacampusbreeze.action.Start_Location_Service";
     private static final String TAG = "LocationService";
 
-    private 
+    private FusedLocationProviderClient mFl;
+    private GeoPoint geopointOfMainCampusCenter = null;
+    private int radiusOfMainCampus = 0;
+//    private GeoPoint geopointOfDevicesCurrentLocation = null;
 
     public LocationService() {
         super("LocationService");
@@ -50,46 +59,70 @@ public class LocationService extends IntentService {
 
     private void handleActionStartLocationService() {
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference mainCampusDocRef = db.collection("geofences").document("MAIN_CAMPUS");
-        mainCampusDocRef.get(Source.SERVER).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    // Document found in the offline cache
-                    DocumentSnapshot document = task.getResult();
+        Task<DocumentSnapshot> getGeofenceTask = FirebaseFirestore.getInstance()
+                .collection("geofences")
+                .document("MAIN_CAMPUS")
+                .get(Source.SERVER);
+        try {
+            DocumentSnapshot ds = Tasks.await(getGeofenceTask);
+            geopointOfMainCampusCenter = (GeoPoint) ds.get("center");
+            radiusOfMainCampus = (int) ds.getLong("radius").intValue();
+        } catch (ExecutionException e) {
 
-                    Log.d(TAG, "Cached document data: " + document.getData());
-                } else {
+        } catch (InterruptedException e) {
 
-                }
-            }
-        });
-
-        FusedLocationProviderClient fl = LocationServices.getFusedLocationProviderClient(this);
-
-        while (true) {
-
-            fl.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
-                @Override
-                public void onComplete(@NonNull Task<Location> task) {
-                    if(task.isSuccessful()){
-                        Location location = task.getResult();
-                        GeoPoint geoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());
-                        Log.d(TAG, "latitude: " + geoPoint.getLatitude());
-                        Log.d(TAG, "longitude: " + geoPoint.getLongitude());
-//                    userLat = location.getLatitude();
-//                    userLong = location.getLongitude();
-//                    run saveduserLoaction once method is created
-                    }
-                }
-            });
-
-            SystemClock.sleep(60000);
         }
 
+
+        mFl = LocationServices.getFusedLocationProviderClient(getApplicationContext());
+        while (true) {
+            Log.d(TAG, "At beginning of loop in LocationServiceLoop().");
+            mFl.getLastLocation()
+                    .addOnSuccessListener(new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            Location locationOfMainCampus = new Location("");
+                            locationOfMainCampus.setLatitude(geopointOfMainCampusCenter.getLatitude());
+                            locationOfMainCampus.setLongitude(geopointOfMainCampusCenter.getLongitude());
+
+                            if (locationOfMainCampus.distanceTo(location) > (float) radiusOfMainCampus) {
+                                Log.d(TAG, "YOU ARE NOT ON CAMPUS");
+                                Intent i = new Intent("on_campus_status");
+                                i.putExtra("Status", false);
+                                getApplicationContext().sendBroadcast(i);
+                            } else {
+                                Intent i = new Intent("on_campus_status");
+                                Log.d(TAG, "YOU ARE ON CAMPUS");
+                                i.putExtra("Status", true);
+                                getApplicationContext().sendBroadcast(i);
+                            }
+
+                        }
+                    });
+
+            SystemClock.sleep(5000);
+        }
     }
 
+//        FirebaseFirestore
+//                .getInstance()
+//                .collection("geofences")
+//                .document("MAIN_CAMPUS")
+//                .get(Source.SERVER)
+//                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+//                    @Override
+//                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+//                        if (documentSnapshot.exists()) {
+//                            geopointOfMainCampusCenter = (GeoPoint) documentSnapshot.get("center");
+//                            radiusOfMainCampus = (int) documentSnapshot.getLong("radius").intValue();
+//                            runLocationServiceLoop();
+//                        }
+//                    }
+//                });
+//
+//        while (true) {  // I DK if this is needed, but seems reasonable.
+//            SystemClock.sleep(1000);
+//        }
 
 
 }

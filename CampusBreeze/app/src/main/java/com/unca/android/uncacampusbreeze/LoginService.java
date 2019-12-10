@@ -30,6 +30,7 @@ import com.google.firebase.functions.HttpsCallableResult;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
 
 public class LoginService extends IntentService {
 
@@ -39,6 +40,7 @@ public class LoginService extends IntentService {
     private String mUid;
     private SharedPreferences mCredentials;
     private boolean mLoungeLockedToScreen = true;
+    private long mTimeOfTokenCreation = System.currentTimeMillis();
 
     public LoginService() {
         super("LoginService");
@@ -109,41 +111,46 @@ public class LoginService extends IntentService {
             }
         }
 
+        long timeSinceCreation = 3301;
         while (true) { // run until app stops ????? I guess this is what happens????? UHHHHH
-            createCustomTokenForUid(mUid)
-                    .addOnSuccessListener(new OnSuccessListener<String>() {
-                        @Override
-                        public void onSuccess(String s) {
-                            FirebaseAuth auth = FirebaseAuth.getInstance();
-                            auth.signInWithCustomToken(s)
-                                    .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
-                                        @Override
-                                        public void onSuccess(AuthResult authResult) {
-                                            Intent i = new Intent("logged_in_status");
-                                            i.putExtra("Status", true);
-                                            getApplicationContext().sendBroadcast(i);
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Intent i = new Intent("logged_in_status");
-                                            i.putExtra("Status", false);
-                                            getApplicationContext().sendBroadcast(i);
-                                        }
-                                    });
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) { // couldn't get a token from the server
-                            Intent i = new Intent("logged_in_status");
-                            i.putExtra("Status", false);
-                            getApplicationContext().sendBroadcast(i);
-                        }
-                    });
+            if (timeSinceCreation > 3300) {
+                createCustomTokenForUid(mUid)
+                        .addOnSuccessListener(new OnSuccessListener<String>() {
+                            @Override
+                            public void onSuccess(String s) {
+                                FirebaseAuth auth = FirebaseAuth.getInstance();
+                                auth.signInWithCustomToken(s)
+                                        .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+                                            @Override
+                                            public void onSuccess(AuthResult authResult) {
+                                                Intent i = new Intent("logged_in_status");
+                                                i.putExtra("Status", true);
+                                                getApplicationContext().sendBroadcast(i);
+                                                mTimeOfTokenCreation = System.currentTimeMillis();
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Intent i = new Intent("logged_in_status");
+                                                i.putExtra("Status", false);
+                                                getApplicationContext().sendBroadcast(i);
+                                            }
+                                        });
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) { // couldn't get a token from the server
+                                Intent i = new Intent("logged_in_status");
+                                i.putExtra("Status", false);
+                                getApplicationContext().sendBroadcast(i);
+                            }
+                        });
+            }
 
-            SystemClock.sleep(3300000); // every 55 minutes get a new token from the server.
+            SystemClock.sleep(10000);
+            timeSinceCreation = (long) ((System.currentTimeMillis() - mTimeOfTokenCreation) / 1000);
         }
     }
 

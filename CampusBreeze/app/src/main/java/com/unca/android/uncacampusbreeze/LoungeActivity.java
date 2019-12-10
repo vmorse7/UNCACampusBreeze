@@ -26,25 +26,28 @@ public class LoungeActivity extends AppCompatActivity {
     private Intent mGatekeepingStatusIntent;
     private boolean mLoggedIntoServer = false;
     private boolean mDeviceInValidLocation = false;
+    private Context mContext = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lounge);
+        mContext = getApplicationContext();
 
         registerReceiver(onLoggedInBroadcast, new IntentFilter("logged_in_status"));
+        registerReceiver(onCampusBroadcast, new IntentFilter("on_campus_status"));
+
+        LoginService.startActionLogin(getApplicationContext());
+
         // ask for location permission if not granted
         if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {//Check for ACCESS FINE LOCATION permission
+                == PackageManager.PERMISSION_GRANTED) { //Check for ACCESS FINE LOCATION permission
             mLocationGranted = true;
-            LoginService.startActionLogin(getApplicationContext());
-            LocationService.startActionStartLocationService(getApplicationContext());
         } else {
             ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     9002);
-
             mLocationGranted = false;
         }
 
@@ -86,6 +89,7 @@ public class LoungeActivity extends AppCompatActivity {
         super.onDestroy();
 
         unregisterReceiver(onLoggedInBroadcast);
+        unregisterReceiver(onCampusBroadcast);
     }
 
     private BroadcastReceiver onLoggedInBroadcast = new BroadcastReceiver() {
@@ -94,6 +98,7 @@ public class LoungeActivity extends AppCompatActivity {
             boolean isLoggedIn = i.getBooleanExtra("Status", false);
             if (isLoggedIn) {
                 mLoggedIntoServer = true;
+                LocationService.startActionStartLocationService(getApplicationContext());
                 Toast.makeText(getApplicationContext(), "Logged into server.", Toast.LENGTH_SHORT).show();
             } else {
                 mLoggedIntoServer = false;
@@ -101,4 +106,17 @@ public class LoungeActivity extends AppCompatActivity {
             }
         }
     };
+
+    private BroadcastReceiver onCampusBroadcast = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent i) {
+            boolean isOnCampus = i.getBooleanExtra("Status", false);
+            if (isOnCampus) {
+                Toast.makeText(getApplicationContext(), "You are on campus.", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getApplicationContext(), "Not on campus.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    };
+
 }
