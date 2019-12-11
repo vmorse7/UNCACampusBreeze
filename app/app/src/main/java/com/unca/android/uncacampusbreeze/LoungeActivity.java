@@ -112,31 +112,17 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
 
     @Override
     public void onMapReady(GoogleMap map) {
-        //getLocationPermission();
-        //map.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
-        Log.d(TAG, "LOCATION ACCESS IS " + mLocationGranted);
-
-
             if(mLocationGranted){
                 map.setMyLocationEnabled(true);
-
-
             }
             mGoogleMap = map;
             map.getUiSettings().setAllGesturesEnabled(false);
-
-
-
-
     }
+
     double userLat;
     double userLong;
     //Sets the camera view NEED LATITUDE AND LONGITUDE OF USER
     private void setCameraView() {
-
-
-            Log.d(TAG, "USER LATITUDE: " + String.valueOf(userLat));
-            Log.d(TAG, "USER LONGITUDE: " + String.valueOf(userLong));
             // mMapView.setVisibility(View.VISIBLE);
             double bottomBoundary = userLat - .1;
             double leftBoundary = userLong - .1;
@@ -148,29 +134,24 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
                     new LatLng(topBoundary, rightBoundary)
             );
 
-
             mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(mMapBoundary,20));
             mGoogleMap.moveCamera(CameraUpdateFactory.zoomTo(17));
-
-
-
-
     }
 
 
 
         @Override
     public void onStart() {
-
         super.onStart();
-        mMapView.onStart();
 
+        mMapView.onStart();
     }
 
 
     @Override
     public void onResume() {
         super.onResume();
+
         mMapView.onResume();
 
 
@@ -179,30 +160,27 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
     @Override
     public void onPause() {
         super.onPause();
+
         mMapView.onPause();
-
-
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        mMapView.onStop();
 
+        mMapView.onStop();
     }
 
     @Override
     public void onRestart() {
         super.onRestart();
-
-
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mMapView.onDestroy();
 
+        mMapView.onDestroy();
         unregisterReceiver(onLoggedInBroadcast);
         unregisterReceiver(onCampusBroadcast);
     }
