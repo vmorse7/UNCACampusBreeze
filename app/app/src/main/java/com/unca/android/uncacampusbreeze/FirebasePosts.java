@@ -41,7 +41,7 @@ public class FirebasePosts extends Activity {
         super.onCreate(savedInstanceState);
        // setContentView(R.layout.list_view);
         setContentView(R.layout.post_list_view);
-
+        refreshList();
         newPostButton = (Button) findViewById(R.id.new_post);
         adapter.notifyDataSetChanged();
         createRecyclerView();
@@ -76,6 +76,7 @@ public class FirebasePosts extends Activity {
 
             @Override
             public void onClick(View view) {
+                Log.d("post", "Refresh button is clicked");
                 displayFirestoreData();
             }
         });
@@ -93,7 +94,7 @@ public class FirebasePosts extends Activity {
 
         FirebaseFirestore.getInstance()
                 .collection("userMessages")
-                .orderBy("Date", Query.Direction.DESCENDING)
+                .orderBy("Date", Query.Direction.DESCENDING )
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
 
