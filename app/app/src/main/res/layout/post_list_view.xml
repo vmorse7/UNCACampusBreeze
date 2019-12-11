@@ -5,12 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-<androidx.recyclerview.widget.RecyclerView android:id="@+id/post_recycler_view"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="600dp"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-</androidx.recyclerview.widget.RecyclerView>
+
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -18,8 +13,6 @@
         android:text="New Post"
         android:id="@+id/new_post"
         android:tint="@android:color/white"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
         app:fabSize="mini"
         android:onClick="sendToPostActivity"
         />
@@ -28,14 +21,20 @@
         android:id="@+id/refresh"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginRight="321dp"
-        android:layout_marginBottom="1dp"
+        android:layout_toRightOf="@+id/new_post"
         android:clickable="true"
-        android:text="Refresh"
+        android:text="All Posts"
         android:tint="@android:color/white"
         app:fabSize="mini" />
+
+<androidx.recyclerview.widget.RecyclerView android:id="@+id/post_recycler_view"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_below="@+id/new_post"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+</androidx.recyclerview.widget.RecyclerView>
+
 
 
 </RelativeLayout>
