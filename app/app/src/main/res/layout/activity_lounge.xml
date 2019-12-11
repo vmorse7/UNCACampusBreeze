@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    tools:context=".LoungeActivity">
+
+
+    <Button
+        android:id="@+id/buttonMessage"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/button_message"
+        android:textSize="18sp"
+        android:onClick="sendToMessages"
+        android:enabled="false"
+        />
+
+
+    <com.google.android.gms.maps.MapView
+        android:id="@+id/mapView"
+        android:layout_width="fill_parent"
+        android:layout_height="500dp"
+        android:background="@drawable/location"
+        android:visibility="invisible"
+         />
+
+    <TextView
+        android:id="@+id/rocky_message"
+        android:layout_below="@id/mapView"
+        android:layout_width="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_height="wrap_content"
+        android:text="Rocky says Hello"
+        />
+
+</RelativeLayout>

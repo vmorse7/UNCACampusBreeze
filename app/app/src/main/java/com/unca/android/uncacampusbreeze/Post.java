@@ -1,22 +1,22 @@
 package com.unca.android.uncacampusbreeze;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.Date;
 import java.util.UUID;
 
 public class Post {
 
-    private UUID postID;
-    private String postHeading;
-    private String postText;
-    private Date mDate;
+    String postHeading;
+    String postText;
+    String date;
 
-    public Post() {
-        this(UUID.randomUUID());
-    }
 
-    public Post(UUID id) {
-        postID = id;
-        mDate = new Date();
+
+    public Post(String heading, String text) {
+        postHeading = heading;
+        postText = text;
+        date = new Date().toString();
     }
 
     public void setPostHeading(String postH){
@@ -35,11 +35,4 @@ public class Post {
         return postText;
     }
 
-    public UUID getId() {
-        return postID;
-    }
-
-    public Date getDate() {
-        return mDate;
-    }
 }

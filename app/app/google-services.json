@@ -15,6 +15,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "246661060892-1nq0lmjs13sh2nosrjorhr3nbbk9msd7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.unca.android.uncacampusbreeze",
+            "certificate_hash": "1d9648b2cc0bd1f24cac9d6304f6dbbd5d849580"
+          }
+        },
+        {
+          "client_id": "246661060892-usf89h1qe8s3e1p74e4hqobn1rahsfg6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.unca.android.uncacampusbreeze",
+            "certificate_hash": "5c922989bf573f7cc16fff168fb7f5ce74384a76"
+          }
+        },
+        {
           "client_id": "246661060892-er0k7b8t1lkh19mi70qdt7f3d0k6u4pi.apps.googleusercontent.com",
           "client_type": 3
         }
