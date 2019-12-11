@@ -135,7 +135,6 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
     private void setCameraView() {
 
 
-        Log.d(TAG, "THIS IS BEING CALLED");
             Log.d(TAG, "USER LATITUDE: " + String.valueOf(userLat));
             Log.d(TAG, "USER LONGITUDE: " + String.valueOf(userLong));
             // mMapView.setVisibility(View.VISIBLE);
