@@ -24,15 +24,15 @@
             android:name=".LoginService"
             android:exported="false" />
 
-        <activity android:name=".LoungeActivity">
+        <activity android:name=".LoungeActivity" android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".FirebasePosts" />
-        <activity android:name=".PostActivity" />
+        <activity android:name=".FirebasePosts" android:screenOrientation="portrait"/>
+        <activity android:name=".PostActivity" android:screenOrientation="portrait"/>
 
         <meta-data
             android:name="preloaded_fonts"
