@@ -2,9 +2,18 @@
 <html>
     <head>
         <title>UNCA Campus Breeze Administration Site</title>
-        <link href="../css/postsPage.css" rel="stylesheet" type="text/css"> 
+        <link href="../css/button.css" rel="stylesheet" type="text/css">
+        <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
     </head>
     <body>
+        <div id="mainCont">
+            <h1>Welcome!</h1>
+            <h3>This website controls the Campus Breeze app's delete functionality.</h3>
+            <div id="buttonCont">
+                <button id="nukeButton" onclick="nukePosts()">Delete All Posts</button>
+            </div>
+        </div>
+        <!--
         <div id="navbar">
             <p id="welcome">Welcome!</p>
             <div id="navLinks">
@@ -16,27 +25,103 @@
                     <ol>Permissions</ol>
                     <ol>Settings</ol>
                 </li>
+                <button onclick="nukePosts()">Delete All Posts</button>
             </div>
         </div>
-        <div class="postsCont">
+        
+        <div id="postsCont">
+            <p id="content">
+            </p>
+        </div>
+-->
+        
+        <!--
+        <div id="post">
+            <div id="postCont" onload="loadPosts()"></div>
+        </div>
+-->
+        
+        <!--
+        <script>
+            document.getElementById("postCont").innerHTML = "<p>Test</p>";
+        </script>
+-->
+        <!--
+        <div id="postsCont">
             <div class="titleCont">
                 <div class="postTitle">
-                    <p>Title</p>
-                </div>
-                <div class="dateTime">
-                    <p>Time/Date</p>
+                    <p id="title">Title</p>
+                    <p id="date">Time/Date</p>
                 </div>
             </div>
             <div class="content">
-                <div class="text"></div>
+                <div class="text">
+                    <p id="postText"></p>
+                </div>
                 <div class="postActions">
-                <li>
-                    <ol>Reports:</ol>
-                    <ol>Remove</ol>
-                    <ol>Ban</ol>
-                </li>
+                  <button id="remove">Remove</button>
                 </div>
             </div>
         </div>
+-->
+        <!-- <script src="../scripts/posts.js" type="text/javascript"></script> -->
+        
+        <!-- Firebase scripts -->
+        <script src="https://www.gstatic.com/firebasejs/7.5.2/firebase-app.js"></script>
+        
+        <script src="https://www.gstatic.com/firebasejs/7.5.2/firebase-firestore.js"></script>
+        
+        <script src="https://www.gstatic.com/firebasejs/7.5.2/firebase-functions.js"></script>
+        
+        
+        
+        <script>
+            
+            /**
+            const firebase = require("firebase");
+            // Required for side-effects
+            require("firebase/firestore");
+            */
+            
+            // Initialize Cloud Firestore through Firebase
+            firebase.initializeApp({
+                  apiKey: 'AIzaSyDM-jyekmnLRXqvbDDo52OVuWuDE07jOiM',
+                  authDomain: 'UNCACampusBreeze.firebaseapp.com',
+                  projectId: 'uncacampusbreeze'
+            });
+            
+            
+            var db = firebase.firestore();
+            var myMessages = db.collection("userMessages");
+            
+            
+            
+            myMessages.get().then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    
+                    console.log(doc.data());
+                    console.log("\n--------------------------------");
+                });
+            });
+            
+            
+            /*
+            var getPosts = firebase.functions().httpsCallable('getHotPosts');
+            getPosts().then(function(result) {
+                result.data;
+                console.log(result.data);
+            });
+            */
+            
+            var nukeFn = firebase.functions().httpsCallable('nukePosts');
+            
+            function nukePosts(){
+                
+                nukeFn().then(function(result) {
+                    
+                });
+            }
+            
+        </script>
     </body>
 </html>

@@ -1,0 +1,37 @@
+body {
+    background-image: linear-gradient(#73c0ff, white);
+    background-repeat: no-repeat;
+}
+
+#mainCont {
+    text-align: center;
+    font-family: sans-serif;
+}
+
+#buttonCont {
+    display: flex;
+    justify-content: center;
+}
+
+#nukeButton {
+    padding: 150px 50px;
+    font-size: 44px;
+    cursor: pointer;
+    outline: none;
+    border: none;
+    background-color: #3835de;
+    color: #fff;
+    border-radius: 50%;
+    box-shadow: 0 15px #555;
+    
+}
+
+#nukeButton:hover {
+    background-color: rgba(255, 0, 0, 1);
+    color: #fff;
+}
+
+#nukeButton:active {
+    box-shadow: 0 9px #555;
+    transform: translateY(6px);
+}
