@@ -34,6 +34,8 @@ public class LocationService extends IntentService {
     private Location mCurrentLocation;
     private LocationCallback locationCallback;
 
+
+
     public LocationService() {
         super("LocationService");
     }
@@ -109,12 +111,18 @@ public class LocationService extends IntentService {
                     Intent i = new Intent("location_status");
                     i.putExtra("error", false);
                     i.putExtra("on_campus", true);
+                    i.putExtra("latitude",mCurrentLocation.getLatitude());
+                    i.putExtra("longitude",mCurrentLocation.getLongitude());
                     getApplicationContext().sendBroadcast(i);
+
                 } else {
                     Intent i = new Intent("location_status");
                     i.putExtra("error", false);
                     i.putExtra("on_campus", false);
+                    i.putExtra("latitude",mCurrentLocation.getLatitude());
+                    i.putExtra("longitude",mCurrentLocation.getLongitude());
                     getApplicationContext().sendBroadcast(i);
+
                 }
             } else {
                 Intent i = new Intent("location_status");
