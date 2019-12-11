@@ -1,7 +1,8 @@
 // /https://us-central1-uncacampusbreeze.cloudfunctions.net/addMessage?text=uppercaseme
-let functions = require('firebase-functions');
-let admin = require('firebase-admin');
 
+// set up
+const functions = require('firebase-functions');
+const admin = require('firebase-admin');
 admin.initializeApp();
 let db = admin.firestore();
 
@@ -27,7 +28,7 @@ exports.createNewAccount = functions.https.onCall(async (data) => {
 exports.createCustomTokenForUid = functions.https.onCall(async (data) => {
 	const uid = data.uid;
 	console.log('getCustomToken cloud function is now attempting to generate a custom token for uid ' + uid);
-
+	
 	// check if the uid that the device provided even exists...
 	
 	const documentSnapshot = await db.collection('users').doc(uid).get();
@@ -54,3 +55,18 @@ function createCustomToken(uid) {
 		throw new functions.https.HttpsError('server-error-custom-token', "Error creating custom token: " + error);
 	}
 }
+
+exports.nukePosts = functions.https.onCall(async (data, context) => {
+	// await db.collection('userMessages').get().forEach((doc) => {
+	// 	doc.ref.delete();
+	// });
+
+	await db.collection('userMessages').get().then((querySnapshot) => {
+		let docs = querySnapshot.docs;
+		for (let doc of docs) {
+
+			doc.ref.delete();
+		}
+		return null;
+	  });
+});
