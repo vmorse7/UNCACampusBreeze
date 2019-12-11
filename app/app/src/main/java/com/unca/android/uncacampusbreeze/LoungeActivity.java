@@ -60,7 +60,7 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) { //Check for ACCESS FINE LOCATION permission
             mLocationGranted = true;
-            startGoogleMap(savedInstanceState);
+
         } else {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
@@ -70,6 +70,7 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
 
 
 
+        startGoogleMap(savedInstanceState);
 
     }
 
@@ -105,9 +106,7 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
         MapView map = findViewById(R.id.mapView);
         btn.setEnabled(true);
         map.setVisibility(View.VISIBLE);
-        if(mapIsReady){
-            setCameraView();
-        }
+
     }
 
 
@@ -120,6 +119,7 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
 
             if(mLocationGranted){
                 map.setMyLocationEnabled(true);
+
 
             }
             mGoogleMap = map;
@@ -135,7 +135,7 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
     private void setCameraView() {
 
 
-
+        Log.d(TAG, "THIS IS BEING CALLED");
             Log.d(TAG, "USER LATITUDE: " + String.valueOf(userLat));
             Log.d(TAG, "USER LONGITUDE: " + String.valueOf(userLong));
             // mMapView.setVisibility(View.VISIBLE);
@@ -162,8 +162,10 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
 
         @Override
     public void onStart() {
+
         super.onStart();
         mMapView.onStart();
+
     }
 
 
@@ -178,6 +180,7 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
     @Override
     public void onPause() {
         super.onPause();
+        mMapView.onPause();
 
 
     }
@@ -193,11 +196,13 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
     public void onRestart() {
         super.onRestart();
 
+
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mMapView.onDestroy();
 
         unregisterReceiver(onLoggedInBroadcast);
         unregisterReceiver(onCampusBroadcast);
@@ -217,7 +222,7 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
             }
         }
     };
-
+public int counter = 0;
     private BroadcastReceiver onCampusBroadcast = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent i) {
@@ -226,7 +231,7 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
             if (isError) {
                 updateRockyMessage("Error in getting location.");
             } else {
-                mapIsReady = true;
+
                 boolean isOnCampus = i.getBooleanExtra("on_campus", false);
                 if (isOnCampus) {
                     updateRockyMessage("You are on campus. ");
@@ -243,6 +248,10 @@ public class LoungeActivity extends AppCompatActivity implements OnMapReadyCallb
             currentLocation = l;
             userLong = currentLocation.getLongitude();
             userLat = currentLocation.getLatitude();
+
+            if(counter == 2)
+            setCameraView();
+            counter++;
 
         }
     };

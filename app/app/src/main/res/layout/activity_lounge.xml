@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -8,59 +8,34 @@
 
     tools:context=".LoungeActivity">
 
-    <Button
-        android:id="@+id/buttonLocate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="156dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="156dp"
-        android:enabled="true"
-        android:fontFamily="@font/fresca"
-        android:text="@string/button_locate"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/buttonMessage"
+        android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:layout_marginStart="158dp"
-        android:layout_marginTop="36dp"
-        android:layout_marginEnd="157dp"
-        android:fontFamily="@font/fresca"
+        android:layout_height="wrap_content"
         android:text="@string/button_message"
         android:textSize="18sp"
         android:onClick="sendToMessages"
         android:enabled="false"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonLocate" />
+        />
 
 
     <com.google.android.gms.maps.MapView
         android:id="@+id/mapView"
-        android:layout_width="405dp"
-        android:layout_height="696dp"
+        android:layout_width="fill_parent"
+        android:layout_height="500dp"
         android:background="@drawable/location"
         android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/buttonLocate"
-        app:layout_constraintVertical_bias="0.631" />
-
+         />
 
     <TextView
         android:id="@+id/rocky_message"
+        android:layout_below="@id/mapView"
         android:layout_width="wrap_content"
+        android:layout_centerHorizontal="true"
         android:layout_height="wrap_content"
-        android:text="Rocky says Hello!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:text="Rocky says Hello"
+        />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>
