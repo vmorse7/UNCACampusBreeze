@@ -17,7 +17,7 @@
                     <ol>Permissions</ol>
                     <ol>Settings</ol>
                 </li>
-                <button onclick="deletePosts()">Delete All Posts</button>
+                <button onclick="nukePosts()">Delete All Posts</button>
             </div>
         </div>
         
@@ -62,6 +62,10 @@
         
         <script src="https://www.gstatic.com/firebasejs/7.5.2/firebase-firestore.js"></script>
         
+        <script src="https://www.gstatic.com/firebasejs/7.5.2/firebase-functions.js"></script>
+        
+        
+        
         <script>
             
             /**
@@ -85,41 +89,30 @@
             
             myMessages.get().then((querySnapshot) => {
                 querySnapshot.forEach((doc) => {
-                    var content = "yeehaw";
-                    
-                    content += ('<p>' + doc.data() + '</p>');
-                    
-                    $("#content").html(content);
-                    //document.getElementById("content").innerHTML = content;
                     
                     console.log(doc.data());
                     console.log("\n--------------------------------");
                 });
             });
             
-            function deletePosts() {
-               myMessages.doc().delete().then(function() {
-                    console.log("Document successfully deleted!");
-                }).catch(function(error) {
-                   console.error("Error removing document: ", error);
-                }); 
-            }
             
             /*
-            console.log("Users: ");
-            db.collection("users").get().then((querySnapshot) => {
-                querySnapshot.forEach((doc) => {
-                    console.log(`${doc.id} => ${doc.data()}`);
-                });
-            });
-            
-            console.log("User Messages: ");
-            db.collection("userMessages").get().then((querySnapshot) => {
-                querySnapshot.forEach((doc) => {
-                    console.log(`${doc.id} => ${doc.data()}`);
-                });
+            var getPosts = firebase.functions().httpsCallable('getHotPosts');
+            getPosts().then(function(result) {
+                result.data;
+                console.log(result.data);
             });
             */
+            
+            var nukeFn = firebase.functions().httpsCallable('nukePosts');
+            
+            function nukePosts(){
+                
+                nukeFn().then(function(result) {
+                    
+                });
+            }
+            
         </script>
     </body>
 </html>
